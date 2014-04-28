@@ -15,7 +15,6 @@
     "tests"
   ],
   "dependencies": {
-    "jquery": "~2.1.0",
-    "socket.io": "~0.9.15"
+    "jquery": "~2.1.0"
   }
 }
