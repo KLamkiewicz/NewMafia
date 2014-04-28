@@ -3,21 +3,21 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     jshint: {
-      files: ['JS/**/*.js']
+      files: ['*.js', 'public/**/*.js', 'routes/**/*.js']
     },
     less: {
         development: {
             options: {
-                paths: ["Assets/LESS"],
+                paths: ["public/**"],
                 yuicompress: true
             },
             files: {
-                "Assets/CSS/style.css": "Assets/LESS/style.less"
+                "public/stylesheets/style.css": "public/stylesheets/style.less"
             }
         }
     },
     watch: {
-        files: ["Assets/LESS/*", "JS/**/*.js"],
+        files: ["public/stylesheets/*", "*.js", "public/**/*.js", 'routes/**/*.js'],
         tasks: ["less", "jshint"]
     }
   });
