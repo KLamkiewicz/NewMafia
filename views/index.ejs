@@ -1,3 +1,29 @@
+<html>
+<head>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script src="/javascripts/index.js"></script>
+</head>
+<body>
+	<h2>Changed Jade to EJS <%= title %></h2>
+
+	Welcome! 
+	Please insert your nickname
+	</br>
+	<input type="text" id = "nicknameInput"> </input>
+	<span id="pError"> </span>
+	</br>
+	<button id = "nicknameButton"> Button </button>
+
+	<a href="/game"> T </a>
 
 
-<h2>Changed Jade to EJS <%= title %> </h2>
+	<script>
+	  var socket = io.connect('http://localhost');
+	  socket.on('news', function (data) {
+	    console.log(data);
+	    socket.emit('my other event', { my: 'data' });
+	  });
+	</script>
+</body>
+</html>

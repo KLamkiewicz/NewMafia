@@ -5,10 +5,22 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var routes = require('./routes/index');
+var index = require('./routes/index');
 var users = require('./routes/users');
+var game = require('./routes/game');
 
 var app = express();
+var server = require('http').createServer(app);
+var io = require('socket.io').listen(server);
+server.listen(80);
+
+
+// io.sockets.on('connection', function (socket) {
+//   socket.emit('news', { hello: 'world' });
+//   socket.on('my other event', function (data) {
+//     console.log(data);
+//   });
+// });
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -21,8 +33,9 @@ app.use(bodyParser.urlencoded());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
+app.use('/', index);
 app.use('/users', users);
+app.use('/game', game);
 
 /// catch 404 and forwarding to error handler
 app.use(function(req, res, next) {
