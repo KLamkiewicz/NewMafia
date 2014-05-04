@@ -14,14 +14,6 @@ var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 server.listen(80);
 
-
-// io.sockets.on('connection', function (socket) {
-//   socket.emit('news', { hello: 'world' });
-//   socket.on('my other event', function (data) {
-//     console.log(data);
-//   });
-// });
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -32,6 +24,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+//app.use(express.static('public'));
 app.use(express.static("bower_components"));
 
 app.use('/', index);
@@ -69,5 +62,42 @@ app.use(function(err, req, res, next) {
     });
 });
 
+///
+
+exports.currentUsers = [];
+exports.room = {
+    "socket.username": "" ,
+    numberOfUsers: 0
+};
+exports.rooms = [];
+
+
+
+
+//INDEX.G get exported variable from index route
+io.sockets.on('connection', function (socket) {
+     
+        socket.on("add player", function(playerName){
+            socket.username = playerName;
+            exports.currentUsers.push(socket.username);
+            for(var i in exports.currentUsers){
+                console.log(exports.currentUsers[i]);
+            }
+        });
+
+        socket.on("join room", function(room, player){
+
+        });
+
+        socket.on("create room", function(room){
+
+        });
+
+        socket.on("destroy room", function(room){
+
+        });
+});
+
 
 module.exports = app;
+

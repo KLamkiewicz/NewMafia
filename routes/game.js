@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var app = require('../app');
 
 /* GET home page. */
 // router.get('/', function(req, res) {
@@ -9,8 +10,10 @@ var router = express.Router();
 // });
 router.get('/', function(req, res) {
 	//res.redirect('/game');
-	console.log("ssx");
+	//
 	res.render('game');
+	console.log(x);
 });
+
 
 module.exports = router;
