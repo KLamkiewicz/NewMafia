@@ -16,15 +16,6 @@
 	<!-- <button id = "nicknameButton"> Button </button> -->
 	<input type="button" id="nicknameButton" value="Button">
 
-	<a href="/game"> T </a>
 
-
-	<script>
-	  var socket = io.connect('http://localhost');
-	  socket.on('news', function (data) {
-	    console.log(data);
-	    socket.emit('my other event', { my: 'data' });
-	  });
-	</script>
 </body>
 </html>

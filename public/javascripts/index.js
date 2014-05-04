@@ -1,12 +1,9 @@
 $(function(){
-    var socket = io.connect();
-	var canAdd = true;
 	var nickname = "";
-
-
-	socket.on("connected", function(data){
-		console.log(data);
-	});
+	var canAdd = true;
+	// socket.on("connected", function(data){
+	// 	console.log(data);
+	// });
 
 	//Player name
 	//Should check through server if there is already a player with the same nickname
@@ -29,10 +26,11 @@ $(function(){
 			 contentType: "application/json",
 		});
 	});
-
+	// socket.on('user', function(name){
+	// 	alert(name);
+	// });
 	var addPlayer = function(username){
-		socket.emit("add player", username);
 		$("#pError").html("");
+		window.location = "/game";
 	};
-
 });

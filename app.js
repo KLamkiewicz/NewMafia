@@ -78,14 +78,25 @@ exports.rooms = [];
 io.sockets.on('connection', function (socket) {
      
         socket.on("add player", function(playerName){
-            socket.username = playerName;
-            exports.currentUsers.push(socket.username);
-            for(var i in exports.currentUsers){
-                console.log(exports.currentUsers[i]);
-            }
+            socket.set("nickname", playerName);
+            //testing
+            socket.get("nickname", function(err, name){
+                exports.currentUsers.push(name);
+            });
+
+            // for(var i in exports.currentUsers){
+            //     console.log(exports.currentUsers[i]);
+            // }
         });
 
-        socket.on("join room", function(room, player){
+        //Auto-room join
+        socket.on("join room", function(){
+            socket.room = "default";
+            socket.join(socket.room);
+
+            socket.get("nickname", function(err, name){
+                socket.emit('user', name);
+            });
 
         });
 
@@ -97,7 +108,6 @@ io.sockets.on('connection', function (socket) {
 
         });
 });
-
 
 module.exports = app;
 

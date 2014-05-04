@@ -9,11 +9,9 @@ var app = require('../app');
 //   res.render('game');
 // });
 router.get('/', function(req, res) {
-	//res.redirect('/game');
-	//
 	res.render('game');
-	console.log(x);
 });
+
 
 
 module.exports = router;
