@@ -1,31 +1,67 @@
-<!doctype html>
- <html lang="en">
- <head>
-  <meta charset="UTF-8">
-  <title>Game</title>
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="jquery/dist/jquery.min.js"></script>
-  <script src="/javascripts/index.js"></script>
-  <script src="/javascripts/game.js"></script>
-   <title>Document</title>
- </head>
- <body>
+<div>
+	<div id="heroes">
+		Bohaterzy
+	</div>
+	<div id="alive">
+		Users here
+	</div>
+	<div id="dead">
+		Dead here
+	</div>
 
-  <div id="gameChat">
-    <p id="roomName">Znajdujesz sie w pokoju o nazwie default</p>
+	<div id="chatWrap">
+		<div id="chat">
+			Messages here
+		</div>
 
-    <div id="chat">
-      
-    </div>
+		<div id="message">
+			<form>
+			    <div>
+			        <input type="text" id="chatMessage"/>
+			    </div>
+			    <div>
+			        <input type="submit" value="Log In" id="sendMessage"/>
+			    </div>
+			</form>
+		</div>
+	</div>
 
-    <form action="" id="inputForm">
-      <input type="text" maxlength="20" id="inp">
-      <button id="send"> Send message</button>
-      <span id="errorEmpty"></span>
-    </form>
-  </div>
-
+	<div id="killing">
+		Killing
+	</div>
 </div>
 
- </body>
- </html>
+
+
+<!-- 	<div id="game">
+		<div id="heroes">
+			Bohaterzy
+		</div>
+		<div id="alive">
+			Users here
+		</div>
+		<div id="dead">
+			Dead here
+		</div>
+
+		<div id="chatWrap">
+			<div id="chat">
+				Messages here
+			</div>
+
+			<div id="message">
+				<form>
+				    <div>
+				        <input type="text" id="chatMessage"/>
+				    </div>
+				    <div>
+				        <input type="submit" value="Log In" id="sendMessage"/>
+				    </div>
+				</form>
+			</div>
+		</div>
+
+		<div id="killing">
+			Killing
+		</div>
+	</div> -->

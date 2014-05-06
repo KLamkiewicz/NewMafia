@@ -1,48 +1,46 @@
 $(function(){
-	var nickname = "";
-	var canAdd = true;
-	// socket.on("connected", function(data){
-	// 	console.log(data);
-	// });
+var socket = io.connect();
 
-	//Player name
-	//Should check through server if there is already a player with the same nickname
-	//or if the room is full
-	$("#nicknameButton").click(function(){
-		nickname = $("#nicknameInput").val();
-		$.ajax({
-			type: "POST",
-			data: JSON.stringify({nickname: nickname}),
-			url: "/login",
-			success: function(data){
-				if(data)
-					addPlayer(nickname);
-				else
-					$("#pError").html("User already exists").css('color', 'red');
-			},
-			fail: function(data){
-				console.log("Error");
-			},
-			 contentType: "application/json",
-		});
+//Login
+	//Hide the game, show only login
+	$("#game").hide();
+	//Hide the login button, work only on 'Enter'
+	$("#loginButton").hide(); 
+	$("#sendMessage").hide();
+	
+	//
+	$("#loginButton").click(function(e){
+		e.preventDefault();
+		console.log($("#username").val());
+		login();
 	});
-	// socket.on('user', function(name){
-	// 	alert(name);
-	// });
-	var addPlayer = function(username){
-		$("#pError").html("");
-		//$("#here").load("/partials/abc.txt");
-		//window.location = "/game";
-		$.ajax({
-			url: "/test",
-			method: "GET",
-			success: function(data){
-				var x = data;
-				console.log(x);
-			},
-			fail: function(){
-				console.log("FAIL");
-			}
-		});
+
+	var login = function(){
+		//Hide login form, show game
+		socket.emit("add user", $("#username").val());
+		$("#loginForm").hide();
+		$("#game").show();
 	};
+
+// //Game
+	socket.on("connect", function(){
+		console.log("You have been connected");
+	});
+
+	$("#sendMessage").click(function(e){
+		e.preventDefault();
+		socket.emit("send message", $("#chatMessage").val());
+		$("#chatMessage").val("");
+	});
+
+	socket.on("received message", function(username, message){
+		$("#chat").append("<div>" + username + ": " + message + "</div>");
+	});
+
+	socket.on('start game', function(role){
+		var x = role;
+		console.log(x);
+	});
+
+
 });
