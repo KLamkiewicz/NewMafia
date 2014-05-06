@@ -31,7 +31,7 @@ var listOfPlayers = [];
 
 	socket.on("list of players", function(list){
 		$.each(list, function(name){
-			$("#alive").append("<span>" + list[name] + "</span>");
+			$("#alive").append("<span id=\"" + list[name] + "\">" + list[name] + "</span>");
 		});
 	});
 
@@ -51,6 +51,12 @@ var listOfPlayers = [];
 	});
 
 	socket.on('in room', function(player){
-		$("#alive").append("<span>" + player + "</span>");
+		$("#alive").append("<span id=\"" + player + "\">" + player + "</span>");
+	});
+
+	socket.on("player disconnected", function(player){
+		console.log(player);
+		$("#" + player).remove();
+		$("#dead").append(player);
 	});
 });

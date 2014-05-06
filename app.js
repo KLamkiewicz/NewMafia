@@ -61,6 +61,11 @@ var set = [characters.village.villager, characters.village.cop];
 
 io.sockets.on('connection', function (socket) {
 
+        socket.on("disconnect", function(){
+            io.sockets.emit("player disconnected", socket.username);
+            delete players[socket.id];
+        });
+
         socket.on("add user", function(username){
             socket.username = username;
             //Create new player object named socket.id
