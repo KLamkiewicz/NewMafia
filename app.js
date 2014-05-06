@@ -34,6 +34,7 @@ app.get('/', routes.index);
 app.get('/users', user.list);
 
 var players = {};
+var games = {};
 var totalNumberOfPlayers = 0;
 
 var characters = {
@@ -55,12 +56,8 @@ var characters = {
     }
 };
 
-var set = {
-    villager: characters.village.villager,
-    cop: characters.village.cop,
-    mafia: characters.mafia.mafia,
-};
-
+var set = [characters.village.villager, characters.village.cop];
+//, characters.mafia.mafia
 
 io.sockets.on('connection', function (socket) {
 
@@ -74,22 +71,25 @@ io.sockets.on('connection', function (socket) {
             totalNumberOfPlayers = Object.keys(players).length;
 
             //Check if the game is ready to start
-            if(totalNumberOfPlayers >= 2){
-                io.sockets.clients().forEach(function(s) {
-                    var role = assignRoles();
-                    s.emit('start game', role);
-                });
-            }
+            check();
         });
 
         socket.on("send message", function(message){
             io.sockets.emit("received message", socket.username, message);
         });
 
-    var assignRoles = function(){
-        var rand = Math.random();
-            
-        return rand;
+
+    var check = function(){
+        if(totalNumberOfPlayers >=1){
+            //Pseudo-random sort
+            set.sort(function(){
+                return  Math.round(Math.random());
+            });
+            io.sockets.clients().forEach(function(s, i) {
+                s.emit('start game', set[i]);
+            });
+         }
+
     };
 
 });
