@@ -72,12 +72,22 @@ io.sockets.on('connection', function (socket) {
 
             //Check if the game is ready to start
             check();
+            io.sockets.emit('in room', socket.username);
         });
 
         socket.on("send message", function(message){
             io.sockets.emit("received message", socket.username, message);
         });
 
+        socket.emit("list of players", function(){
+            var nicknames = [];
+            for (var key in players) {
+              if (players.hasOwnProperty(key)) {
+                nicknames.push(players[key].username);
+              }
+            }
+                return nicknames;
+        }());
 
     var check = function(){
         if(totalNumberOfPlayers >=1){

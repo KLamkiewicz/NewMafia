@@ -23,8 +23,16 @@ var socket = io.connect();
 	};
 
 // //Game
+var listOfPlayers = [];
+
 	socket.on("connect", function(){
 		console.log("You have been connected");
+	});
+
+	socket.on("list of players", function(list){
+		$.each(list, function(name){
+			$("#alive").append("<span>" + list[name] + "</span>");
+		});
 	});
 
 	$("#sendMessage").click(function(e){
@@ -38,9 +46,11 @@ var socket = io.connect();
 	});
 
 	socket.on('start game', function(role){
-		var x = role;
-		console.log(x);
+		// var x = role;
+		// console.log(x);
 	});
 
-
+	socket.on('in room', function(player){
+		$("#alive").append("<span>" + player + "</span>");
+	});
 });
