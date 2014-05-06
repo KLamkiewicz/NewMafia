@@ -31,6 +31,18 @@ $(function(){
 	// });
 	var addPlayer = function(username){
 		$("#pError").html("");
-		window.location = "/game";
+		//$("#here").load("/partials/abc.txt");
+		//window.location = "/game";
+		$.ajax({
+			url: "/test",
+			method: "GET",
+			success: function(data){
+				var x = data;
+				console.log(x);
+			},
+			fail: function(){
+				console.log("FAIL");
+			}
+		});
 	};
 });

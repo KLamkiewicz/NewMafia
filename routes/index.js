@@ -20,7 +20,10 @@ router.post('/login', function(req,res){
 });
 
 router.get('/test', function(req, res){
-	res.send(name);
+	//res.sendfile(path.resolve("../public/javascripts/abc.txt"));
+	//res.sendfile(__dirname + '/game.js');
+	var x = "";
+	res.sendfile('views/abc.txt', {'root': __dirname + '../../'});
 });
 
 
