@@ -59,7 +59,7 @@ var listOfPlayers = [];
 	});
 
 	/*
-		Start game modifies the view of the client based on allegiance,
+		Game start modifies the view of the client based on allegiance,
 		if he is placed on the village side, he is "sleeping" and may be killed,
 		if he is placed on the mafia side, he may chat in room with the other
 		mafia players, and vote who to kill - majority vote wins
