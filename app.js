@@ -32,40 +32,52 @@ if ('development' == app.get('env')) {
 
 app.get('/', routes.index);
 app.get('/users', user.list);
+app.get('/mafia', index.mafia);
+app.get('/village', index.village);
 
+//List of all players
 var players = {};
+//List of all active games
 var games = {};
+//Number of players
 var totalNumberOfPlayers = 0;
 
+//Object containing the characters to choose from
 var characters = {
     village : {
         villager: {
             name: "villager",
-            about: "A simple villager"
+            about: "A simple villager",
+            side: "village"
         },
         cop: {
             name: "cop",
-            about: "Gets the reports"
+            about: "Gets the reports",
+            side: "village"
         }
     },
     mafia : {
         mafia: {
             name: "mafia",
-            about: "Kills villagers at night"
+            about: "Kills villagers at night",
+            side: "mafia"
         }
     }
 };
 
-var set = [characters.village.villager, characters.village.cop];
+//Predefined game set
+var set = [characters.village.villager, characters.mafia.mafia];
 //, characters.mafia.mafia
 
 io.sockets.on('connection', function (socket) {
 
+        //If the player disconnects he is killed and removed from the players list
         socket.on("disconnect", function(){
             io.sockets.emit("player disconnected", socket.username);
             delete players[socket.id];
         });
 
+        //Player is created and added to the players list
         socket.on("add user", function(username){
             socket.username = username;
             //Create new player object named socket.id
@@ -77,14 +89,17 @@ io.sockets.on('connection', function (socket) {
 
             //Check if the game is ready to start
             check();
-            io.sockets.emit('in room', socket.username);
+            //Notify players, a new player has joined
+            io.sockets.emit('new player joined', socket.username);
         });
 
+        //Message socket
         socket.on("send message", function(message){
             io.sockets.emit("received message", socket.username, message);
         });
 
-        socket.emit("list of players", function(){
+        //Send the joining client the list of players
+        socket.emit("on join list players", function(){
             var nicknames = [];
             for (var key in players) {
               if (players.hasOwnProperty(key)) {
@@ -94,17 +109,24 @@ io.sockets.on('connection', function (socket) {
                 return nicknames;
         }());
 
+    /*
+        This function checks wheter there is sufficient number of
+        players to start the game, if there is the game set is sorted
+        in order to give players diffrent characters, otherwise they would
+        get the characters based on the order they joined in.
+        Each socket is assigned a character and is notified the game is starting
+    */
     var check = function(){
-        if(totalNumberOfPlayers >=1){
+        if(totalNumberOfPlayers >=2){
             //Pseudo-random sort
             set.sort(function(){
                 return  Math.round(Math.random());
             });
             io.sockets.clients().forEach(function(s, i) {
+                console.log(s.id);
                 s.emit('start game', set[i]);
             });
          }
-
     };
 
 });
