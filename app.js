@@ -91,30 +91,47 @@ io.sockets.on('connection', function (socket) {
             return  Math.round(Math.random());
         });
         io.sockets.clients().forEach(function(s, i) {
-            s.side = set[i].side;
-            s.name = set[i].name;
+            players[s.id].side = set[i].side;
+            players[s.id].name = set[i].name;
             // console.log(s.id);
-            // console.log(s.side);
             s.emit('start game', set[i]);
         });
     };
 
-    var killVote = function(){
-        var kill = true;
-        for (var key in players) {
-            if (players.hasOwnProperty(key)) {
-                //nicknames.push(players[key].username);
-                if(players[key].side === 'mafia'){
-                    //players[key].vote = true;
+    var countPlayers = function(){
+        var mafiaCount = 0;
+        var allCount = 0;
+            for (var key in players) {
+                if (players.hasOwnProperty(key)) {
+                    //console.log(players[key]);
+                    if(players[key].side === 'mafia'){
+                        mafiaCount++;
+                        console.log(players[key].username + "    " + players[key].side);
+                    }
+                    allCount++;
                 }
             }
+        return [mafiaCount, allCount];
+    };
+
+    var killVote = function(count){
+        var votesCasted = 0;
+            for (var key in players) {
+                if (players.hasOwnProperty(key)) {
+                    if(players[key].vote !== ""){
+                        votesCasted++;
+                    }
+                }
+            }
+        if(votesCasted===count?true:false){
+            //kill player here, emit he has been killed
         }
     };
 
     var clearVotes = function(){
         for (var key in players) {
             if (players.hasOwnProperty(key)) {
-                //nicknames.push(players[key].username);
+                players[key].vote = "";
             }
         }
     };
@@ -134,7 +151,7 @@ io.sockets.on('connection', function (socket) {
             players[socket.id] = {};
             players[socket.id].username = socket.username;
             players[socket.id].alive = true;
-            players[socket.id].vote = false;
+            players[socket.id].vote = "";
 
             //Check the number of players in the game
             totalNumberOfPlayers = Object.keys(players).length;
@@ -148,7 +165,7 @@ io.sockets.on('connection', function (socket) {
                 timeout = setTimeout(function() {
                     console.log("Game started");
                     startGame();
-                }, 10000);
+                }, 10);
                 console.log("Game will start in 10 seconds");
             }
             //Notify players, a new player has joined
@@ -173,7 +190,9 @@ io.sockets.on('connection', function (socket) {
 
         socket.on("kill vote", function(vote){
             players[socket.id].vote = vote;
-            console.log(players[socket.id].vote);
+            //console.log(players[socket.id].vote);
+            //console.log(countMafia()[0] + "     " + countMafia()[1]);
+            killVote(countPlayers()[0]);
         });
 
 
