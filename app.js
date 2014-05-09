@@ -69,12 +69,62 @@ var characters = {
 var set = [characters.village.villager, characters.mafia.mafia];
 //, characters.mafia.mafia
 
+//Contains the votes
+var votes = [];
+
+
+var timeout;
+
 io.sockets.on('connection', function (socket) {
+
+
+    /*
+        This function checks wheter there is sufficient number of
+        players to start the game, if there is the game set is sorted
+        in order to give players diffrent characters, otherwise they would
+        get the characters based on the order they joined in.
+        Each socket is assigned a character and is notified the game is starting
+    */
+    var startGame = function(){
+        //Pseudo-random sort
+        set.sort(function(){
+            return  Math.round(Math.random());
+        });
+        io.sockets.clients().forEach(function(s, i) {
+            s.side = set[i].side;
+            s.name = set[i].name;
+            // console.log(s.id);
+            // console.log(s.side);
+            s.emit('start game', set[i]);
+        });
+    };
+
+    var killVote = function(){
+        var kill = true;
+        for (var key in players) {
+            if (players.hasOwnProperty(key)) {
+                //nicknames.push(players[key].username);
+                if(players[key].side === 'mafia'){
+                    //players[key].vote = true;
+                }
+            }
+        }
+    };
+
+    var clearVotes = function(){
+        for (var key in players) {
+            if (players.hasOwnProperty(key)) {
+                //nicknames.push(players[key].username);
+            }
+        }
+    };
 
         //If the player disconnects he is killed and removed from the players list
         socket.on("disconnect", function(){
             io.sockets.emit("player disconnected", socket.username);
             delete players[socket.id];
+            //Clear the game timeout
+            clearTimeout(timeout);
         });
 
         //Player is created and added to the players list
@@ -83,12 +133,24 @@ io.sockets.on('connection', function (socket) {
             //Create new player object named socket.id
             players[socket.id] = {};
             players[socket.id].username = socket.username;
+            players[socket.id].alive = true;
+            players[socket.id].vote = false;
 
             //Check the number of players in the game
             totalNumberOfPlayers = Object.keys(players).length;
 
-            //Check if the game is ready to start
-            check();
+            /*
+                Check if the game is ready to start,
+                apply timeout so players may get ready
+                if someone leaves the room, clear the timeout            
+            */
+            if(totalNumberOfPlayers >=2){
+                timeout = setTimeout(function() {
+                    console.log("Game started");
+                    startGame();
+                }, 10000);
+                console.log("Game will start in 10 seconds");
+            }
             //Notify players, a new player has joined
             io.sockets.emit('new player joined', socket.username);
         });
@@ -109,24 +171,11 @@ io.sockets.on('connection', function (socket) {
                 return nicknames;
         }());
 
-    /*
-        This function checks wheter there is sufficient number of
-        players to start the game, if there is the game set is sorted
-        in order to give players diffrent characters, otherwise they would
-        get the characters based on the order they joined in.
-        Each socket is assigned a character and is notified the game is starting
-    */
-    var check = function(){
-        if(totalNumberOfPlayers >=2){
-            //Pseudo-random sort
-            set.sort(function(){
-                return  Math.round(Math.random());
-            });
-            io.sockets.clients().forEach(function(s, i) {
-                console.log(s.id);
-                s.emit('start game', set[i]);
-            });
-         }
-    };
+        socket.on("kill vote", function(vote){
+            players[socket.id].vote = vote;
+            console.log(players[socket.id].vote);
+        });
+
+
 
 });

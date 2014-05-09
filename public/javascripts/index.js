@@ -91,7 +91,8 @@ var listOfPlayers = [];
 	var choiceChange = function(){
 		$("#kill").change(function(){
 			$("#kill option:selected").each(function(){
-				console.log($(this).val());
+				//console.log($(this).val());
+				socket.emit("kill vote", $(this).val());
 			});
 		});
 	};
