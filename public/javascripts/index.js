@@ -23,6 +23,7 @@ var socket = io.connect();
 		$("#game").show();
 	};
 
+
 // //Game
 var listOfPlayers = [];
 

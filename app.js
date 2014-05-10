@@ -98,6 +98,13 @@ io.sockets.on('connection', function (socket) {
         });
     };
 
+    /*
+       This function counts the players upon a kill vote
+       and later passes the result to the killVote function
+       to determine whether the number of votes is equal to the
+       number of players that may participate in the voting
+       CHANGE
+    */
     var countPlayers = function(){
         var mafiaCount = 0;
         var allCount = 0;
@@ -114,11 +121,16 @@ io.sockets.on('connection', function (socket) {
         return [mafiaCount, allCount];
     };
 
+    /*
+        CHANGE && UPDATE
+    */
     var killVote = function(count){
         var votesCasted = 0;
+        var votes = [];
             for (var key in players) {
                 if (players.hasOwnProperty(key)) {
                     if(players[key].vote !== ""){
+                        votes.push(players[key].vote);
                         votesCasted++;
                     }
                 }
@@ -194,7 +206,5 @@ io.sockets.on('connection', function (socket) {
             //console.log(countMafia()[0] + "     " + countMafia()[1]);
             killVote(countPlayers()[0]);
         });
-
-
 
 });
