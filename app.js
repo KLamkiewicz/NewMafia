@@ -35,10 +35,15 @@ app.get('/users', user.list);
 app.get('/mafia', index.mafia);
 app.get('/village', index.village);
 
+
+//GAME ID
+var gameID = 0;
+
 //List of all players
 var players = {};
 //List of all active games
-var games = {};
+var game = {};
+
 //Number of players
 var totalNumberOfPlayers = 0;
 
@@ -95,6 +100,7 @@ io.sockets.on('connection', function (socket) {
             players[s.id].name = set[i].name;
             // console.log(s.id);
             s.emit('start game', set[i]);
+           // console.log(io.sockets.clients()[0].name + " HEEEEEEEEEELOOOOOOOOOO");
         });
     };
 
@@ -158,12 +164,51 @@ io.sockets.on('connection', function (socket) {
 
         //Player is created and added to the players list
         socket.on("add user", function(username){
+            var joined = false;
             socket.username = username;
             //Create new player object named socket.id
             players[socket.id] = {};
             players[socket.id].username = socket.username;
             players[socket.id].alive = true;
             players[socket.id].vote = "";
+
+
+            //ROOM Testing and player storing changes
+            for(var room in game){
+                if(!room.running){
+                    socket.join(room);
+                    joined = true;
+                }
+            }
+
+            if(!joined){
+                socket.join(gameID);
+                game[gameID] = {
+                    running : false,
+                    players : {
+      
+                    }
+                };
+
+                game[gameID].players[socket.id] = {
+                    username : username
+                };
+                gameID++;
+            }
+
+            //console.log(io.sockets.clients('1'));
+
+            for (var key in game) {
+                if (game.hasOwnProperty(key)) {
+                    console.log(game[key].players);
+                    for(var p in game[key].players){
+
+                    }
+                }
+            }
+
+            //ROOM Testing
+
 
             //Check the number of players in the game
             totalNumberOfPlayers = Object.keys(players).length;
@@ -173,7 +218,7 @@ io.sockets.on('connection', function (socket) {
                 apply timeout so players may get ready
                 if someone leaves the room, clear the timeout            
             */
-            if(totalNumberOfPlayers >=2){
+            if(totalNumberOfPlayers >=4){
                 timeout = setTimeout(function() {
                     console.log("Game started");
                     startGame();
