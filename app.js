@@ -36,18 +36,7 @@ app.get('/mafia', index.mafia);
 app.get('/village', index.village);
 
 
-//GAME ID
-var gameID = 0;
 
-//List of all players
-var players = {};
-//List of all active games
-var game = {};
-
-//Number of players
-var totalNumberOfPlayers = 0;
-
-//Object containing the characters to choose from
 var characters = {
     village : {
         villager: {
@@ -72,184 +61,146 @@ var characters = {
 
 //Predefined game set
 var set = [characters.village.villager, characters.mafia.mafia];
+//, characters.village.cop];
 //, characters.mafia.mafia
 
-//Contains the votes
-var votes = [];
 
 
-var timeout;
+
+//This object stores all of the games
+var games = {};
+var roomID = 0;
+var timeOuts = [];
+
+
 
 io.sockets.on('connection', function (socket) {
 
 
-    /*
-        This function checks wheter there is sufficient number of
-        players to start the game, if there is the game set is sorted
-        in order to give players diffrent characters, otherwise they would
-        get the characters based on the order they joined in.
-        Each socket is assigned a character and is notified the game is starting
-    */
-    var startGame = function(){
-        //Pseudo-random sort
-        set.sort(function(){
-            return  Math.round(Math.random());
-        });
-        io.sockets.clients().forEach(function(s, i) {
-            players[s.id].side = set[i].side;
-            players[s.id].name = set[i].name;
-            // console.log(s.id);
-            s.emit('start game', set[i]);
-           // console.log(io.sockets.clients()[0].name + " HEEEEEEEEEELOOOOOOOOOO");
-        });
-    };
-
-    /*
-       This function counts the players upon a kill vote
-       and later passes the result to the killVote function
-       to determine whether the number of votes is equal to the
-       number of players that may participate in the voting
-       CHANGE
-    */
-    var countPlayers = function(){
-        var mafiaCount = 0;
-        var allCount = 0;
-            for (var key in players) {
-                if (players.hasOwnProperty(key)) {
-                    //console.log(players[key]);
-                    if(players[key].side === 'mafia'){
-                        mafiaCount++;
-                        console.log(players[key].username + "    " + players[key].side);
-                    }
-                    allCount++;
-                }
-            }
-        return [mafiaCount, allCount];
-    };
-
-    /*
-        CHANGE && UPDATE
-    */
-    var killVote = function(count){
-        var votesCasted = 0;
-        var votes = [];
-            for (var key in players) {
-                if (players.hasOwnProperty(key)) {
-                    if(players[key].vote !== ""){
-                        votes.push(players[key].vote);
-                        votesCasted++;
-                    }
-                }
-            }
-        if(votesCasted===count?true:false){
-            //kill player here, emit he has been killed
-        }
-    };
-
-    var clearVotes = function(){
-        for (var key in players) {
-            if (players.hasOwnProperty(key)) {
-                players[key].vote = "";
-            }
-        }
-    };
-
-        //If the player disconnects he is killed and removed from the players list
         socket.on("disconnect", function(){
-            io.sockets.emit("player disconnected", socket.username);
-            delete players[socket.id];
-            //Clear the game timeout
-            clearTimeout(timeout);
+            //Check if player has joined any room before removing him from one
+            if(typeof socket.room !== 'undefined'){
+                var nP;
+                //Count the number of players in the room
+                nP = Object.keys(games[socket.room].players).length;
+                //Notify players in the room a player has disconnected
+                io.sockets.in(socket.room).emit("player disconnected", socket.username); 
+
+                console.log("NUMER OF PLAYERS " + nP);
+                console.log(socket.username + " disconnected in room " + socket.room);
+
+                //Check if game is starting, if it is stop the timeout
+                //else the game goes on with one less player
+                if(games[socket.room].isStarting){
+                    games[socket.room].isStarting = false;
+                    clearTimeout(timeOuts[socket.room]);
+                    console.log("Game has been stopped in room" + socket.room);
+                }
+
+                //If this is the last player in the room, remove the room from the game list
+                //else remove only the player that has left
+                if(nP<=1){
+                    console.log("Room " + socket.room + " has been closed");
+                    delete games[socket.room];
+                }else{
+                    delete games[socket.room].players[socket.id];
+                }
+            }
         });
+
 
         //Player is created and added to the players list
         socket.on("add user", function(username){
             var joined = false;
             socket.username = username;
-            //Create new player object named socket.id
-            players[socket.id] = {};
-            players[socket.id].username = socket.username;
-            players[socket.id].alive = true;
-            players[socket.id].vote = "";
 
-
-            //ROOM Testing and player storing changes
-            for(var room in game){
-                if(!room.running){
-                    socket.join(room);
-                    joined = true;
+            //Iterate over rooms, find room where game is not running, else create new
+            for(var room in games){
+                if(games.hasOwnProperty(room)){
+                    console.log(games[room].started);
+                    console.log(!games[room].isStarting && !games[room].started);
+                    if(!games[room].isStarting && !games[room].started){
+                        socket.join(room);
+                        games[room].players[socket.id] = {
+                            username : username
+                        };
+                        socket.room = room;
+                        joined = true;
+                    }
                 }
             }
 
+            //Create new room if all are full
             if(!joined){
-                socket.join(gameID);
-                game[gameID] = {
-                    running : false,
+                socket.join(roomID);
+                games[roomID] = {
+                    started : false,
+                    isStarting : false,
                     players : {
-      
+
                     }
                 };
 
-                game[gameID].players[socket.id] = {
+                games[roomID].players[socket.id] = {
                     username : username
                 };
-                gameID++;
+
+                socket.room = roomID;
+                //Creating new id for the next user that won't be able to join
+                roomID++;
             }
 
-            //console.log(io.sockets.clients('1'));
-
-            for (var key in game) {
-                if (game.hasOwnProperty(key)) {
-                    console.log(game[key].players);
-                    for(var p in game[key].players){
-
+            for(room in games) {
+                if (games.hasOwnProperty(room)) {
+                    for(var p in games[room].players){
+                        console.log(games[room].players[p].username);
                     }
                 }
             }
-
-            //ROOM Testing
-
-
-            //Check the number of players in the game
-            totalNumberOfPlayers = Object.keys(players).length;
-
-            /*
-                Check if the game is ready to start,
-                apply timeout so players may get ready
-                if someone leaves the room, clear the timeout            
-            */
-            if(totalNumberOfPlayers >=4){
-                timeout = setTimeout(function() {
-                    console.log("Game started");
-                    startGame();
-                }, 10);
-                console.log("Game will start in 10 seconds");
-            }
-            //Notify players, a new player has joined
-            io.sockets.emit('new player joined', socket.username);
+            console.log("Player joined the game" + socket.username + " in room" + socket.room);
+            // Notify players in the room, a new player has joined
+            io.sockets.in(socket.room).emit('new player joined', socket.username);
+            //Check if the game is ready to start
+            checkIfReady(io.sockets.clients(socket.room).length);
         });
 
-        //Message socket
-        socket.on("send message", function(message){
-            io.sockets.emit("received message", socket.username, message);
+    /*
+        Check if the game is ready to start,
+        apply timeout so players may get ready
+        if someone leaves the room, stop the timeout            
+    */
+    var checkIfReady = function(players){
+        if(players >= 2){
+            games[socket.room].isStarting = true;
+            //games[socket.room].timeout = timeout;
+            timeOuts[socket.room] = setTimeout(function(){
+                console.log("Game started in room " + socket.room);
+                startGame(socket.room);
+            }, 20000);
+            console.log("Game will start in 20 seconds");
+        }
+    };
+
+    /*
+        Start the game, game is no longer in starting state
+        Randomly sort the set of available roles and then
+        assign them to the players
+    */
+    var startGame = function(room){
+        games[socket.room].isStarting = false;
+        games[socket.room].started = true;
+        //Pseudo-random sort
+        set.sort(function(){
+            return  Math.round(Math.random());
         });
 
-        //Send the joining client the list of players
-        socket.emit("on join list players", function(){
-            var nicknames = [];
-            for (var key in players) {
-              if (players.hasOwnProperty(key)) {
-                nicknames.push(players[key].username);
-              }
-            }
-                return nicknames;
-        }());
-
-        socket.on("kill vote", function(vote){
-            players[socket.id].vote = vote;
-            //console.log(players[socket.id].vote);
-            //console.log(countMafia()[0] + "     " + countMafia()[1]);
-            killVote(countPlayers()[0]);
+        //Set all the players roles in the room
+        io.sockets.clients(room).forEach(function(s, i) {
+            console.log("ROOM " + s.room + "  username " + s.username + " SIDE " + set[i].side);
+            games[room].players[s.id].side = set[i].side;
+            games[room].players[s.id].name = set[i].name;
+            io.sockets.in(room).emit('start game', set[i]);
         });
+    };
 
 });
