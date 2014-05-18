@@ -75,8 +75,10 @@ var timeOuts = [];
 
 
 io.sockets.on('connection', function (socket) {
+    console.log(io.sockets.manager.roomClients[socket.id]);
 
-
+    socket.emit("test", io.sockets.manager.roomClients[socket.id]);
+    
         socket.on("disconnect", function(){
             //Check if player has joined any room before removing him from one
             if(typeof socket.room !== 'undefined'){
@@ -86,7 +88,7 @@ io.sockets.on('connection', function (socket) {
                 //Notify players in the room a player has disconnected
                 io.sockets.in(socket.room).emit("player disconnected", socket.username); 
 
-                console.log("NUMER OF PLAYERS " + nP);
+                console.log("NUMBER OF PLAYERS " + nP);
                 console.log(socket.username + " disconnected in room " + socket.room);
 
                 //Check if game is starting, if it is stop the timeout
@@ -132,7 +134,6 @@ io.sockets.on('connection', function (socket) {
 
             //Create new room if all are full
             if(!joined){
-                socket.join(roomID);
                 games[roomID] = {
                     started : false,
                     isStarting : false,
@@ -146,23 +147,42 @@ io.sockets.on('connection', function (socket) {
                 };
 
                 socket.room = roomID;
+                socket.join(socket.room);
                 //Creating new id for the next user that won't be able to join
                 roomID++;
             }
 
-            for(room in games) {
-                if (games.hasOwnProperty(room)) {
-                    for(var p in games[room].players){
-                        console.log(games[room].players[p].username);
-                    }
-                }
-            }
-            console.log("Player joined the game" + socket.username + " in room" + socket.room);
+            // for(room in games) {
+            //     if (games.hasOwnProperty(room)) {
+            //         for(var p in games[room].players){
+            //             console.log(games[room].players[p].username);
+            //         }
+            //     }
+            // }
+
+            console.log(io.sockets.manager.roomClients[socket.id]);
+            console.log(socket.room);
+
             // Notify players in the room, a new player has joined
             io.sockets.in(socket.room).emit('new player joined', socket.username);
             //Check if the game is ready to start
             checkIfReady(io.sockets.clients(socket.room).length);
         });
+
+        // //Send the joining client the list of players
+        // socket.emit("on join list players", function(){
+        //     var nicknames = [];
+        //     for(var room in games) {
+        //         if (games.hasOwnProperty(room)) {
+        //             if(room === socket.room){
+        //                 for(var p in games[room].players){
+        //                     nicknames.push(games[room].players[p].username);
+        //                 }
+        //             }
+        //         }
+        //     }
+        //         return nicknames;
+        // }());
 
     /*
         Check if the game is ready to start,
@@ -176,7 +196,7 @@ io.sockets.on('connection', function (socket) {
             timeOuts[socket.room] = setTimeout(function(){
                 console.log("Game started in room " + socket.room);
                 startGame(socket.room);
-            }, 20000);
+            }, 500000);
             console.log("Game will start in 20 seconds");
         }
     };
@@ -199,7 +219,7 @@ io.sockets.on('connection', function (socket) {
             console.log("ROOM " + s.room + "  username " + s.username + " SIDE " + set[i].side);
             games[room].players[s.id].side = set[i].side;
             games[room].players[s.id].name = set[i].name;
-            io.sockets.in(room).emit('start game', set[i]);
+            s.emit('start game', set[i]);
         });
     };
 

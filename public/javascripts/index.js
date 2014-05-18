@@ -66,6 +66,7 @@ var listOfPlayers = [];
 		mafia players, and vote who to kill - majority vote wins
 	*/
 	var startTheGame = function(html, role){
+		console.log(role);
 		if(role === 'village'){
 			$("body").append(html);
 			$("#chatWrap").hide();
@@ -102,17 +103,19 @@ var listOfPlayers = [];
 		On joining the game client receives the list of all players,
 		which is displayed on the left
 	*/
-	socket.on("on join list players", function(list){
-		$.each(list, function(name){
-			listOfPlayers.push(list[name]);
-			$("#alive").append("<span id=\"" + list[name] + "\">" + list[name] + "</span>");
-		});
-	});
+	// socket.on("on join list players", function(list){
+	// 	$.each(list, function(name){
+	// 		listOfPlayers.push(list[name]);
+	// 		console.log("List of players " + list[name]);
+	// 		$("#alive").append("<span id=\"" + list[name] + "\">" + list[name] + "</span>");
+	// 	});
+	// });
 
 	/*
 		Client is notified that a new player joined, list of players is updated
 	*/
 	socket.on('new player joined', function(player){
+		console.log("JOINED " + player);
 		listOfPlayers.push(player);
 		$("#alive").append("<span id=\"" + player + "\">" + player + "</span>");
 	});
@@ -127,4 +130,7 @@ var listOfPlayers = [];
 		$("#dead").append(player);
 	});
 
+	socket.on("test", function(d){
+		console.log("THIS IS DATA  " + d);
+	});
 });

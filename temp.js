@@ -226,7 +226,7 @@ io.sockets.on('connection', function (socket) {
                 console.log("Game will start in 10 seconds");
             }
             //Notify players, a new player has joined
-            io.sockets.emit('new player joined', socket.username);
+            //io.sockets.emit('new player joined', socket.username);
         });
 
         //Message socket
