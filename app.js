@@ -37,6 +37,7 @@ app.get('/village', index.village);
 
 
 
+//Available characters to choose from
 var characters = {
     village : {
         villager: {
@@ -59,12 +60,10 @@ var characters = {
     }
 };
 
-//Predefined game set
+//Predefined game set from the characters object
 var set = [characters.village.villager, characters.mafia.mafia];
 //, characters.village.cop];
 //, characters.mafia.mafia
-
-
 
 
 //This object stores all of the games
@@ -75,10 +74,17 @@ var timeOuts = [];
 
 
 io.sockets.on('connection', function (socket) {
-console.log("THIS IS SOCKET ID   ");
-console.log(socket.id);
-console.log(" HEEEEEEEEREEE ");
 
+
+//Sockets
+
+        /*
+            On this event firstly we check if the socket has joined any room
+            before disconnecting (did not log in) if he did not then we don't
+            to worry, else we must update our list of players in that room, notify
+            all the players in the room that someone is a quitter and if necessary
+            stop the game from starting. 
+        */
         socket.on("disconnect", function(){
             //Check if player has joined any room before removing him from one
             if(typeof socket.room !== 'undefined'){
@@ -113,7 +119,17 @@ console.log(" HEEEEEEEEREEE ");
         });
 
 
-        //Player is created and added to the players list
+        //Message socket
+        socket.on("send message", function(message){
+            io.sockets.in((socket.room).toString()).emit("received message", socket.username, message);
+        });
+
+
+        /*
+            In here the server decides which room the player will join
+            First we check all available rooms, if there is no room that the player can join,
+            a new one is created just for him.
+        */
         socket.on("add user", function(username){
             var joined = false;
             socket.username = username;
@@ -166,33 +182,38 @@ console.log(" HEEEEEEEEREEE ");
 
             //Check if the game is ready to start
             checkIfReady(io.sockets.clients(socket.room).length);
-
         });
 
-        var emitListOfPlayers = function(socketRoom){
-            //Send the joining client the list of players
-            socket.emit("on join list players", function(){
-                var nicknames = [];
-                for(var room in games) {
-                    if (games.hasOwnProperty(room)) {
-                        console.log("ROOOM " + room + " SOCKETROOM " + socketRoom);
-                        if(room === socketRoom){
-                                                                            console.log(" I  AM                  INSIDE");
-                            for(var p in games[room].players){
-                                nicknames.push(games[room].players[p].username);
-                                console.log("SERVER USERNAME  " + games[room].players[p].username);
-                            }
+
+//Functions
+
+    /*
+        When the player joins the room he gets the list of all the
+        players that are in it, before that he broadcasts his arrival
+        in the room updating all of the players "users" list
+    */
+    var emitListOfPlayers = function(socketRoom){
+        //Send the joining client the list of players
+        socket.emit("on join list players", function(){
+            var nicknames = [];
+            for(var room in games) {
+                if (games.hasOwnProperty(room)) {
+                    if(room === socketRoom){
+                        for(var p in games[room].players){
+                            nicknames.push(games[room].players[p].username);
                         }
                     }
                 }
-                    return nicknames;
-            }());
-        };
+            }
+                return nicknames;
+        }());
+    };
 
     /*
         Check if the game is ready to start,
         apply timeout so players may get ready
-        if someone leaves the room, stop the timeout            
+        if someone leaves the room, stop the timeout 
+        in the disconnect socket           
     */
     var checkIfReady = function(players){
         if(players >= 2){
@@ -201,7 +222,7 @@ console.log(" HEEEEEEEEREEE ");
             timeOuts[socket.room] = setTimeout(function(){
                 console.log("Game started in room " + socket.room);
                 startGame(socket.room);
-            }, 500000);
+            }, 15000);
             console.log("Game will start in 20 seconds in room " + socket.room);
         }
     };
