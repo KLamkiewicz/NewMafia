@@ -103,13 +103,13 @@ var listOfPlayers = [];
 		On joining the game client receives the list of all players,
 		which is displayed on the left
 	*/
-	// socket.on("on join list players", function(list){
-	// 	$.each(list, function(name){
-	// 		listOfPlayers.push(list[name]);
-	// 		console.log("List of players " + list[name]);
-	// 		$("#alive").append("<span id=\"" + list[name] + "\">" + list[name] + "</span>");
-	// 	});
-	// });
+	socket.on("on join list players", function(list){
+		$.each(list, function(name){
+			listOfPlayers.push(list[name]);
+			console.log("Player from list " + list[name]);
+			$("#alive").append("<span id=\"" + list[name] + "\">" + list[name] + "</span>");
+		});
+	});
 
 	/*
 		Client is notified that a new player joined, list of players is updated
@@ -131,6 +131,9 @@ var listOfPlayers = [];
 	});
 
 	socket.on("test", function(d){
-		console.log("THIS IS DATA  " + d);
+		console.log("THIS IS DATA  ");
+		$.each(d, function(el){
+			console.log(d[el]);
+		});
 	});
 });
