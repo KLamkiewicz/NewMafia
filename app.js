@@ -70,7 +70,6 @@ var timeOuts = [];
 
 io.sockets.on('connection', function (socket) {
 
-
 //Sockets
 
         /*
@@ -216,6 +215,7 @@ io.sockets.on('connection', function (socket) {
         var votesCasted = 0;
         var voteArray = [];
         var votes = {};
+        var topVotes = {};
 
         for(var room in games){
             if(games.hasOwnProperty(room)){
@@ -248,26 +248,37 @@ io.sockets.on('connection', function (socket) {
                 Case: No one - kill no one
                 Case: Player - kill player 
             */
-            //kill player here, emit he has been killed
-            console.log("Kill");
+
+            topVotes["no one"] = 0;
+
+            for(var vote in votes){
+                if(votes.hasOwnProperty(vote)){
+                    console.log(vote + votes[vote]);
+                    for(var topVote in topVotes){
+                        if(topVotes.hasOwnProperty(topVote)){
+                            if(votes[vote] > topVotes[topVote]){
+                                topVotes[vote] = votes[vote];
+                                delete topVotes[topVote];
+                            }else if(votes[vote] === topVotes[topVote]){
+                                topVotes[vote] = votes[vote];
+                            }
+                        }
+                    }
+                }
+            }
+
+            console.log("The one to be killed ");
+            if(Object.keys(topVotes).length === 1){
+                for(var n in topVotes){
+                    //Kill this one
+                    console.log(n);
+                }
+            }
+            else if(Object.keys(topVotes).length > 1){
+                //random
+            }
         }
     };
-
-
-// var arTest = ["XDG", "OBC", "OBC", "XDG", "ŁAĆ", "ŁAĆ", "ŁAĆ", "ŁAĆ", "XDG"];
-// var Votes = {};
-//     var x = function(){
-//         arTest.forEach(function(el){
-//             if(el in Votes){
-//                 Votes[el]++;
-//             }else{
-//                 Votes[el] = 1;
-//             }
-//         });
-
-//         console.log(Votes);
-//     }();
-
 
     var clearVotes = function(){
         for(var room in games){
