@@ -267,15 +267,35 @@ io.sockets.on('connection', function (socket) {
                 }
             }
 
-            console.log("The one to be killed ");
+            /*
+                E.g. 3 votes on A, 2 votes on B, 2 votes on C
+                A "wins", but the vote is not the majority so
+                no one is killed
+            */
             if(Object.keys(topVotes).length === 1){
                 for(var n in topVotes){
                     //Kill this one
+                    console.log("KILL");
                     console.log(n);
+                    if((topVotes[n] / mafiaCount) > 0.5){
+                        console.log("Majority");
+                        //kill n
+                    }else{
+                        console.log("Minority");
+                        //kill no one
+                    }
                 }
             }
+            /*
+                There is a tie amongst the "winners"
+                There are two types of possible outcomes ??change
+                First:
+                E.g. A: 3 votes B: 3 votes - votes are exactly 50/50, random
+                E.g. A: 2 votes B: 2 votes C: 2 votes - no one
+            */
             else if(Object.keys(topVotes).length > 1){
-                //random
+
+
             }
         }
     };
