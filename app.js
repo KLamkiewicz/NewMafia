@@ -35,8 +35,6 @@ app.get('/users', user.list);
 app.get('/mafia', index.mafia);
 app.get('/village', index.village);
 
-
-
 //Available characters to choose from
 var characters = {
     village : {
@@ -61,16 +59,13 @@ var characters = {
 };
 
 //Predefined game set from the characters object
-var set = [characters.village.villager, characters.mafia.mafia];
-//, characters.village.cop];
-//, characters.mafia.mafia
+var set = [characters.village.villager, characters.mafia.mafia, characters.village.cop, characters.mafia.mafia];
 
 
 //This object stores all of the games
 var games = {};
 var roomID = 0;
 var timeOuts = [];
-
 
 
 io.sockets.on('connection', function (socket) {
@@ -142,7 +137,8 @@ io.sockets.on('connection', function (socket) {
                     if(!games[room].isStarting && !games[room].started && !joined){
                         socket.join(room.toString());
                         games[room].players[socket.id] = {
-                            username : username
+                            username : username,
+                            vote : ""
                         };
                         socket.room = room;
                         joined = true;
@@ -161,7 +157,8 @@ io.sockets.on('connection', function (socket) {
                 };
 
                 games[roomID].players[socket.id] = {
-                    username : username
+                    username : username,
+                    vote : ""
                 };
 
                 socket.room = roomID;
@@ -184,8 +181,106 @@ io.sockets.on('connection', function (socket) {
             checkIfReady(io.sockets.clients(socket.room).length);
         });
 
+        socket.on("kill vote", function(vote){
+            var mafiaCount = 0;
+            //Object.keys(games[socket.room].players).length
+            //players[socket.id].vote = vote;
+            //console.log(players[socket.id].vote);
+            //console.log(countMafia()[0] + "     " + countMafia()[1]);
+            //killVote(countPlayers()[0]);
+
+            console.log("kill " + vote);
+            //Assign the vote to player and count all of the players that are
+            //allowed to vote
+            for(var room in games) {
+                if (games.hasOwnProperty(room)) {
+                    if(room === (socket.room).toString()){
+                        games[room].players[socket.id].vote = vote;
+                        for(var p in games[room].players){
+                            if(games[room].players[p].side === 'mafia'){
+                                mafiaCount++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            theKilling(mafiaCount);
+        });
+
 
 //Functions
+
+    
+    var theKilling = function(mafiaCount){
+        var votesCasted = 0;
+        var voteArray = [];
+        var votes = {};
+
+        for(var room in games){
+            if(games.hasOwnProperty(room)){
+                if(room === (socket.room).toString()){
+                    for(var p in games[room].players){
+                        if(games[room].players[p].vote !== ""){
+                            votesCasted++;
+                            voteArray.push(games[room].players[p].vote);
+                        }
+                    }
+                }
+            }
+        }
+
+        voteArray.forEach(function(el){
+            if(el in votes){
+                votes[el]++;
+            }else{
+                votes[el] = 1;
+            }
+        });
+
+        console.log(votes);
+
+        //Check if the votesCasted count equals the number of people allowed to vote
+        if(votesCasted===mafiaCount?true:false){
+            /*
+                Check the votes
+                Case: Tie - randomly kill the person from the tied ones
+                Case: No one - kill no one
+                Case: Player - kill player 
+            */
+            //kill player here, emit he has been killed
+            console.log("Kill");
+        }
+    };
+
+
+// var arTest = ["XDG", "OBC", "OBC", "XDG", "ŁAĆ", "ŁAĆ", "ŁAĆ", "ŁAĆ", "XDG"];
+// var Votes = {};
+//     var x = function(){
+//         arTest.forEach(function(el){
+//             if(el in Votes){
+//                 Votes[el]++;
+//             }else{
+//                 Votes[el] = 1;
+//             }
+//         });
+
+//         console.log(Votes);
+//     }();
+
+
+    var clearVotes = function(){
+        for(var room in games){
+            if(games.hasOwnProperty(room)){
+                if(room === (socket.room).toString()){
+                    for(var p in games[room].players){
+                        games[room].players[p].vote = "";
+                    }
+                }
+            }
+        }
+    };
+
 
     /*
         When the player joins the room he gets the list of all the
@@ -216,13 +311,13 @@ io.sockets.on('connection', function (socket) {
         in the disconnect socket           
     */
     var checkIfReady = function(players){
-        if(players >= 2){
+        if(players >= 4){
             games[socket.room].isStarting = true;
             //games[socket.room].timeout = timeout;
             timeOuts[socket.room] = setTimeout(function(){
                 console.log("Game started in room " + socket.room);
                 startGame(socket.room);
-            }, 15000);
+            }, 5000);
             console.log("Game will start in 20 seconds in room " + socket.room);
         }
     };
@@ -247,6 +342,9 @@ io.sockets.on('connection', function (socket) {
             games[room].players[s.id].name = set[i].name;
             s.emit('start game', set[i]);
         });
+        // timeOuts[socket.room] = setTimeout(function(){
+
+        // }, 60000);
     };
 
 });

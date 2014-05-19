@@ -130,10 +130,4 @@ var listOfPlayers = [];
 		$("#dead").append(player);
 	});
 
-	socket.on("test", function(d){
-		console.log("THIS IS DATA  ");
-		$.each(d, function(el){
-			console.log(d[el]);
-		});
-	});
 });
