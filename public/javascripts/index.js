@@ -95,7 +95,7 @@ var listOfPlayers = [];
 	var startTheGame = function(html, role){
 		console.log(role);
 		if(role === 'village'){
-			$("#chatWrap").hide();
+			$("#chatWrap").html("");
 		}
 		else if(role ==='mafia'){
 			$("body").append(html);
@@ -129,12 +129,6 @@ var listOfPlayers = [];
 		which is displayed on the left
 	*/
 	socket.on("on join list players", function(list){
-
-		console.log($("#alive").length);
-
-		if($("#alive").length){
-		 	console.log("IT EXISSSSSSSSST");
-		}
 		$.each(list, function(name){
 			listOfPlayers.push(list[name]);
 			console.log("Player from list " + list[name]);

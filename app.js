@@ -34,6 +34,7 @@ app.get('/', routes.index);
 app.get('/users', user.list);
 app.get('/login', index.login);
 app.get('/game', index.game);
+app.get('/chat', index.chat);
 app.get('/mafia', index.mafia);
 app.get('/village', index.village);
 app.get('/spectator', index.spectator);

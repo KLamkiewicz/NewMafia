@@ -14,6 +14,10 @@ exports.game = function(req, res){
 	res.sendfile('views/game.ejs', {root: __dirname + '../../'});
 };
 
+exports.chat = function(req, res){
+	res.sendfile('views/chatWrap.ejs', {root: __dirname + '../../'});
+};
+
 exports.mafia = function(req, res){
     res.sendfile('views/mafia.ejs', {root: __dirname + '../../'});
 };
