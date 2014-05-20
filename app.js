@@ -34,6 +34,7 @@ app.get('/', routes.index);
 app.get('/users', user.list);
 app.get('/mafia', index.mafia);
 app.get('/village', index.village);
+app.get('/spectator', index.spectator);
 
 //Available characters to choose from
 var characters = {
@@ -295,10 +296,17 @@ io.sockets.on('connection', function (socket) {
                                     for(var pl in games[room].players){
                                         if(games[room].players[pl].username === n){
                                             //emit who was killed and go on with next day
+                                            console.log(pl);
+
                                             games[room].players[pl].alive = false;
                                             io.sockets.in(room).emit("player killed", n);
                                             break;
                                         }
+                                    }
+                                    if(games[room].day){
+                                        //change to night
+                                    }else{
+                                        //change to day
                                     }
                                 }
                             }

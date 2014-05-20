@@ -1,5 +1,5 @@
 /*
- * GET home page.
+ * Get sides respective views
  */
 
 exports.index = function(req, res){
@@ -12,4 +12,8 @@ exports.mafia = function(req, res){
 
 exports.village = function(req, res){
 	res.sendfile('views/village.ejs', {root: __dirname + '../../'});
+};
+
+exports.spectator = function(req, res){
+	res.sendfile('views/spectator.ejs', {root: __dirname + '../../'});
 };
