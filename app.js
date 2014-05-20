@@ -137,6 +137,7 @@ io.sockets.on('connection', function (socket) {
                         socket.join(room.toString());
                         games[room].players[socket.id] = {
                             username : username,
+                            alive: true,
                             vote : ""
                         };
                         socket.room = room;
@@ -150,6 +151,7 @@ io.sockets.on('connection', function (socket) {
                 games[roomID] = {
                     started : false,
                     isStarting : false,
+                    day: false,
                     players : {
 
                     }
@@ -157,6 +159,7 @@ io.sockets.on('connection', function (socket) {
 
                 games[roomID].players[socket.id] = {
                     username : username,
+                    alive: true,
                     vote : ""
                 };
 
@@ -181,7 +184,7 @@ io.sockets.on('connection', function (socket) {
         });
 
         socket.on("kill vote", function(vote){
-            var mafiaCount = 0;
+            var count = 0;
             //Object.keys(games[socket.room].players).length
             //players[socket.id].vote = vote;
             //console.log(players[socket.id].vote);
@@ -196,22 +199,28 @@ io.sockets.on('connection', function (socket) {
                     if(room === (socket.room).toString()){
                         games[room].players[socket.id].vote = vote;
                         for(var p in games[room].players){
-                            if(games[room].players[p].side === 'mafia'){
-                                mafiaCount++;
+                            if(!games[room].day){
+                                if(games[room].players[p].side === 'mafia' && games[room].players[p].alive){
+                                    count++;
+                                }
+                            }else{
+                               if(games[room].players[p].alive){
+                                    count++;
+                               }     
                             }
                         }
                     }
                 }
             }
 
-            theKilling(mafiaCount);
+            theKilling(count);
         });
 
 
 //Functions
 
     
-    var theKilling = function(mafiaCount){
+    var theKilling = function(count){
         var votesCasted = 0;
         var voteArray = [];
         var votes = {};
@@ -241,7 +250,7 @@ io.sockets.on('connection', function (socket) {
         console.log(votes);
 
         //Check if the votesCasted count equals the number of people allowed to vote
-        if(votesCasted===mafiaCount?true:false){
+        if(votesCasted===count?true:false){
             /*
                 Check the votes
                 Case: Tie - randomly kill the person from the tied ones
@@ -273,13 +282,27 @@ io.sockets.on('connection', function (socket) {
                 no one is killed
             */
             if(Object.keys(topVotes).length === 1){
+                //This will only make one loop, because there is only one field in the object
                 for(var n in topVotes){
                     //Kill this one
                     console.log("KILL");
                     console.log(n);
-                    if((topVotes[n] / mafiaCount) > 0.5){
+                    if((topVotes[n] / count) > 0.5){
                         console.log("Majority");
-                        //kill n
+                        for(room in games){
+                            if(games.hasOwnProperty(room)){
+                                if(room === (socket.room).toString()){
+                                    for(var pl in games[room].players){
+                                        if(games[room].players[pl].username === n){
+                                            //emit who was killed and go on with next day
+                                            games[room].players[pl].alive = false;
+                                            io.sockets.in(room).emit("player killed", n);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }else{
                         console.log("Minority");
                         //kill no one
