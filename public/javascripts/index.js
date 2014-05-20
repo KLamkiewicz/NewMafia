@@ -2,25 +2,57 @@ $(function(){
 var socket = io.connect();
 
 //Login
-	//Hide the game, show only login
-	$("#game").hide();
-	//Hide the login button, work only on 'Enter'
-	$("#loginButton").hide(); 
-	$("#sendMessage").hide();
-	
-	//Login to the game
-	$("#loginButton").click(function(e){
-		e.preventDefault();
-		console.log($("#username").val());
-		login();
+
+	$.ajax({
+		url: '/login',
+		method: "GET",
+		success: function(html){
+			prepareLoginView(html);
+		},
+		fail: function(){
+
+		}
 	});
+
+	var prepareLoginView = function(html){
+		$("body").html(html);
+		//Login to the game
+		$("#loginButton").click(function(e){
+			e.preventDefault();
+			console.log($("#username").val());
+			login();
+		});
+		$("#loginButton").hide(); 
+	};
 
 	//Client joins the game and is added as a new user 
 	var login = function(){
 		//Hide login form, show game
 		socket.emit("add user", $("#username").val());
-		$("#loginForm").hide();
-		$("#game").show();
+		// $("#loginForm").hide();
+		// $("#game").show();
+
+		$.ajax({
+			url: '/game',
+			method: "GET",
+			success: function(html){
+				prepareGameView(html);
+			},
+			fail: function(){
+
+			}
+		});
+	};
+
+	var prepareGameView = function(html){
+		$("body").html(html);
+		$("#sendMessage").hide();
+		$("#sendMessage").click(function(e){
+			e.preventDefault();
+			socket.emit("send message", $("#chatMessage").val());
+			$("#chatMessage").val("");
+		});
+		socket.emit("ready for list");
 	};
 
 
@@ -31,16 +63,11 @@ var listOfPlayers = [];
 		console.log("You have been connected");
 	});
 
-	//Message sending
-		$("#sendMessage").click(function(e){
-			e.preventDefault();
-			socket.emit("send message", $("#chatMessage").val());
-			$("#chatMessage").val("");
-		});
 
-		socket.on("received message", function(username, message){
-			$("#chat").append("<div>" + username + ": " + message + "</div>");
-		});
+	//Message received
+	socket.on("received message", function(username, message){
+		$("#chat").append("<div>" + username + ": " + message + "</div>");
+	});
 
 	/*
 		Client fetches the necessary view particle from the server,
@@ -68,9 +95,7 @@ var listOfPlayers = [];
 	var startTheGame = function(html, role){
 		console.log(role);
 		if(role === 'village'){
-			$("body").append(html);
 			$("#chatWrap").hide();
-			$("#village").hide();
 		}
 		else if(role ==='mafia'){
 			$("body").append(html);
@@ -104,6 +129,12 @@ var listOfPlayers = [];
 		which is displayed on the left
 	*/
 	socket.on("on join list players", function(list){
+
+		console.log($("#alive").length);
+
+		if($("#alive").length){
+		 	console.log("IT EXISSSSSSSSST");
+		}
 		$.each(list, function(name){
 			listOfPlayers.push(list[name]);
 			console.log("Player from list " + list[name]);

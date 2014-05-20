@@ -32,6 +32,8 @@ if ('development' == app.get('env')) {
 
 app.get('/', routes.index);
 app.get('/users', user.list);
+app.get('/login', index.login);
+app.get('/game', index.game);
 app.get('/mafia', index.mafia);
 app.get('/village', index.village);
 app.get('/spectator', index.spectator);
@@ -119,6 +121,10 @@ io.sockets.on('connection', function (socket) {
             io.sockets.in((socket.room).toString()).emit("received message", socket.username, message);
         });
 
+        //Get list of players upon joining the room, wait for the game screen to be prepared
+        socket.on("ready for list", function(){
+            emitListOfPlayers((socket.room).toString());
+        });
 
         /*
             In here the server decides which room the player will join
@@ -176,9 +182,6 @@ io.sockets.on('connection', function (socket) {
 
             // Notify players in the room, a new player has joined
             socket.broadcast.to((socket.room).toString()).emit('new player joined', socket.username);
-            
-            //Get list of players upon joining the room
-            emitListOfPlayers((socket.room).toString());
 
             //Check if the game is ready to start
             checkIfReady(io.sockets.clients(socket.room).length);
