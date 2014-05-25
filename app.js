@@ -29,6 +29,31 @@ client.on("error", function (err) {
 });
 
 
+// Konfiguracja passport.js
+passport.serializeUser(function (user, done) {
+    done(null, user);
+});
+
+passport.deserializeUser(function (obj, done) {
+    done(null, obj);
+});
+
+passport.use(new LocalStrategy(
+    function (username, password, done) {
+        if ((username === 'admin') && (password === 'tajne')) {
+            console.log("Udane logowanie...");
+            return done(null, {
+                username: username,
+                password: password
+            });
+        } else {
+            return done(null, false);
+        }
+    }
+));
+
+
+
 
 
 
@@ -61,7 +86,7 @@ if ('development' == app.get('env')) {
 
 app.get('/', routes.index);
 app.get('/users', user.list);
-app.get('/login', index.login);
+//app.get('/login', index.login);
 app.get('/game', index.game);
 app.get('/chat', index.chat);
 app.get('/mafia', index.mafia);
@@ -70,31 +95,23 @@ app.get('/spectator', index.spectator);
 
 
 //isLoggedIn,
-app.get('/logging', function(req, res){
+app.get('/login', function(req, res){
     //res.redirect('login.html');
-    res.render('logging');
+    res.render('login');
 });
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+app.post('/login',
+    passport.authenticate('local', {
+        failureRedirect: '/login'
+    }),
+    function (req, res) {
+        //res.redirect('/authorized.html');
+        res.send("HHH");
+        res.redirect('/');
+    }
+);
 
 
 
