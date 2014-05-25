@@ -16,7 +16,6 @@ var socket = io.connect();
 	});
 
 
-	socket.emit("ready for list");
 	//prepareGameView();
 
 

@@ -247,11 +247,11 @@ var timeOuts = [];
 io.sockets.on('connection', function (socket) {
 
 //Sockets
+    var loginName = socket.handshake.user.username;
+    // socket.username = socket.handshake.user.username;
+    // var joinGame = function(){
 
-    socket.username = socket.handshake.user.username;
-    var joinGame = function(){
-
-    };
+    // };
 
 
 
@@ -290,7 +290,7 @@ io.sockets.on('connection', function (socket) {
                     console.log("Room number " + socket.room + " has been closed");
                     delete games[socket.room];
                 }else{
-                    delete games[socket.room].players[socket.id];
+                    delete games[socket.room].players[loginName];
                 }
             }
         });
@@ -299,6 +299,7 @@ io.sockets.on('connection', function (socket) {
         //Message socket
         socket.on("send message", function(message){
             io.sockets.in((socket.room).toString()).emit("received message", socket.username, message);
+            console.log(games);
         });
 
         //Get list of players upon joining the room, wait for the game screen to be prepared
@@ -312,13 +313,12 @@ io.sockets.on('connection', function (socket) {
             a new one is created just for him.
         */
         socket.on("add user", function(username){
-            console.log("WHY AINT YOU WORKING");
             username = socket.handshake.user.username;
             //console.log(sessionStore);
             console.log("HELLLO     " + username);
 
             
-
+            var joined = false;
             socket.username = username;
 
             //Iterate over rooms, find room where game is not running, else create new
@@ -328,7 +328,7 @@ io.sockets.on('connection', function (socket) {
                     // console.log(!games[room].isStarting && !games[room].started);
                     if(!games[room].isStarting && !games[room].started && !joined){
                         socket.join(room.toString());
-                        games[room].players[socket.id] = {
+                        games[room].players[loginName] = {
                             username : username,
                             alive: true,
                             vote : ""
@@ -350,7 +350,7 @@ io.sockets.on('connection', function (socket) {
                     }
                 };
 
-                games[roomID].players[socket.id] = {
+                games[roomID].players[loginName] = {
                     username : username,
                     alive: true,
                     vote : ""
@@ -363,8 +363,8 @@ io.sockets.on('connection', function (socket) {
             }
 
             console.log("Socket joined room " + socket.room);
-            console.log("List of rooms ");
-            console.log(io.sockets.manager.roomClients[socket.id]);
+            //console.log("List of rooms ");
+            //console.log(io.sockets.manager.roomClients[socket.id]);
 
             // Notify players in the room, a new player has joined
             socket.broadcast.to((socket.room).toString()).emit('new player joined', socket.username);
@@ -373,11 +373,12 @@ io.sockets.on('connection', function (socket) {
             checkIfReady(io.sockets.clients(socket.room).length);
         });
 
+
         socket.on("kill vote", function(vote){
             var count = 0;
             //Object.keys(games[socket.room].players).length
-            //players[socket.id].vote = vote;
-            //console.log(players[socket.id].vote);
+            //players[loginName].vote = vote;
+            //console.log(players[loginName].vote);
             //console.log(countMafia()[0] + "     " + countMafia()[1]);
             //killVote(countPlayers()[0]);
 
@@ -387,7 +388,7 @@ io.sockets.on('connection', function (socket) {
             for(var room in games) {
                 if (games.hasOwnProperty(room)) {
                     if(room === (socket.room).toString()){
-                        games[room].players[socket.id].vote = vote;
+                        games[room].players[loginName].vote = vote;
                         for(var p in games[room].players){
                             if(!games[room].day){
                                 if(games[room].players[p].side === 'mafia' && games[room].players[p].alive){
@@ -589,8 +590,8 @@ io.sockets.on('connection', function (socket) {
         //Set all the players roles in the room
         io.sockets.clients(room.toString()).forEach(function(s, i) {
             console.log("ROOM " + s.room + "  username " + s.username + " SIDE " + set[i].side);
-            games[room].players[s.id].side = set[i].side;
-            games[room].players[s.id].name = set[i].name;
+            games[room].players[s.username].side = set[i].side;
+            games[room].players[s.username].name = set[i].name;
             s.emit('start game', set[i]);
         });
         // timeOuts[socket.room] = setTimeout(function(){
