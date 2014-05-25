@@ -1,5 +1,6 @@
 var express = require("express");
 var routes = require('./routes');
+var index = require('./routes/index');
 var app = express();
 var path = require('path');
 var httpServer = require("http").createServer(app).listen(80);
@@ -106,6 +107,9 @@ app.use(express.static("bower_components"));
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
+
+app.get('/mafia', index.mafia);
+app.get('/village', index.village);
 
 app.get('/game', isAuthenticated, function(req, res){
     //res.sendfile(__dirname + '/public/index.html');
@@ -234,7 +238,8 @@ var characters = {
 };
 
 //Predefined game set from the characters object
-var set = [characters.village.villager, characters.mafia.mafia, characters.village.cop, characters.mafia.mafia];
+var set = [characters.village.villager, characters.mafia.mafia];
+//, characters.village.cop, characters.mafia.mafia];
 
 
 //This object stores all of the games
@@ -563,7 +568,7 @@ io.sockets.on('connection', function (socket) {
         in the disconnect socket           
     */
     var checkIfReady = function(players){
-        if(players >= 4){
+        if(players >= 2){
             games[socket.room].isStarting = true;
             //games[socket.room].timeout = timeout;
             timeOuts[socket.room] = setTimeout(function(){

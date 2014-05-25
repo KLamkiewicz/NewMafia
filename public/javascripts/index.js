@@ -9,25 +9,22 @@ var socket = io.connect();
 		socket.emit("add user", "admin");
 	});
 
+
+	//Message sent
 	$("#sendMessage").click(function(e){
 		e.preventDefault();
 		socket.emit("send message", $("#chatMessage").val());
 		$("#chatMessage").val("");
 	});
 
-
-	//prepareGameView();
-
-
-// //Game
-var listOfPlayers = [];
-
-
-
 	//Message received
 	socket.on("received message", function(username, message){
 		$("#chat").append("<div>" + username + ": " + message + "</div>");
 	});
+
+
+// //Game
+var listOfPlayers = [];
 
 	/*
 		Client fetches the necessary view particle from the server,
@@ -38,6 +35,7 @@ var listOfPlayers = [];
 			url: '/' + role.side,
 			method: "GET",
 			success: function(data){
+				console.log("SUCCESSS");
 				 startTheGame(data, role.side);
 			},
 			fail: function(){

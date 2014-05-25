@@ -19,6 +19,7 @@ exports.chat = function(req, res){
 };
 
 exports.mafia = function(req, res){
+	console.log("WORKS");
     res.sendfile('views/mafia.ejs', {root: __dirname + '../../'});
 };
 
