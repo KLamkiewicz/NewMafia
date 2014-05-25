@@ -258,8 +258,6 @@ io.sockets.on('connection', function (socket) {
 
     // };
 
-
-
         /*
             On this event firstly we check if the socket has joined any room
             before disconnecting (did not log in) if he did not then we don't
@@ -597,6 +595,7 @@ io.sockets.on('connection', function (socket) {
             console.log("ROOM " + s.room + "  username " + s.username + " SIDE " + set[i].side);
             games[room].players[s.username].side = set[i].side;
             games[room].players[s.username].name = set[i].name;
+            //emit list of players to ensure there is no error {set[i], list}
             s.emit('start game', set[i]);
         });
         // timeOuts[socket.room] = setTimeout(function(){

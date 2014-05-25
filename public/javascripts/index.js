@@ -53,10 +53,12 @@ var listOfPlayers = [];
 	var startTheGame = function(html, role){
 		console.log(role);
 		if(role === 'village'){
-			$("#chatWrap").html("");
+			$("#chatWrap").remove();
+			//$("#chatWrap").html("");
 		}
 		else if(role ==='mafia'){
-			$("body").append(html);
+			//get list of players
+			$("#game").append(html);
 			$.each(listOfPlayers, function(id, player){
 				 $("#kill").append('<option value=' + player  + '>' + player +'</option>');
 			});
