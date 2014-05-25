@@ -16,6 +16,7 @@ var sessionKey = 'connect.sid';
 
 //REDIS
 var redis = require("redis");
+//var client = redis.createClient(10477, "pub-redis-10477.us-east-1-3.3.ec2.garantiadata.com");
 var client = redis.createClient();
 
 client.on("error", function (err) {
@@ -247,6 +248,13 @@ io.sockets.on('connection', function (socket) {
 
 //Sockets
 
+    socket.username = socket.handshake.user.username;
+    var joinGame = function(){
+
+    };
+
+
+
         /*
             On this event firstly we check if the socket has joined any room
             before disconnecting (did not log in) if he did not then we don't
@@ -309,7 +317,8 @@ io.sockets.on('connection', function (socket) {
             //console.log(sessionStore);
             console.log("HELLLO     " + username);
 
-            var joined = false;
+            
+
             socket.username = username;
 
             //Iterate over rooms, find room where game is not running, else create new
