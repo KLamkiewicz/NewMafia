@@ -13,6 +13,7 @@ var socket = io.connect();
 
 	// 	}
 	// });
+	
 
 	var prepareLoginView = function(html){
 		$("body").html(html);
@@ -25,24 +26,30 @@ var socket = io.connect();
 		$("#loginButton").hide(); 
 	};
 
+
+
 	//Client joins the game and is added as a new user 
 	var login = function(){
 		//Hide login form, show game
-		socket.emit("add user", $("#username").val());
+		// socket.emit("add user", $("#username").val());
+		socket.emit("add user", "admin");
 		// $("#loginForm").hide();
 		// $("#game").show();
 
-		$.ajax({
-			url: '/game',
-			method: "GET",
-			success: function(html){
-				prepareGameView(html);
-			},
-			fail: function(){
+		// $.ajax({
+		// 	url: '/game',
+		// 	method: "GET",
+		// 	success: function(html){
+		// 		prepareGameView(html);
+		// 	},
+		// 	fail: function(){
 
-			}
-		});
+		// 	}
+		// });
 	};
+	
+	login();
+
 
 	var prepareGameView = function(html){
 		$("body").html(html);

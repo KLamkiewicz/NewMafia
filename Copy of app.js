@@ -1,18 +1,24 @@
-var express = require("express");
+var express = require('express');
 var routes = require('./routes');
-var app = express();
+var user = require('./routes/user');
+var index = require('./routes/index');
+var http = require('http');
 var path = require('path');
-var httpServer = require("http").createServer(app).listen(80);
-var socketio = require("socket.io");
-var io = socketio.listen(httpServer);
+
+var app = express();
+var server = require('http').createServer(app);
+var io = require('socket.io').listen(server);
+server.listen(80);
+
 var connect = require('connect');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var socketIo = require('socket.io');
 var passportSocketIo = require('passport.socketio');
 var sessionStore = new connect.session.MemoryStore();
-var sessionSecret = 'jednorozec';
+var sessionSecret = 'jednorozce';
 var sessionKey = 'connect.sid';
+
 
 //REDIS
 var redis = require("redis");
@@ -22,29 +28,6 @@ client.on("error", function (err) {
     console.log("Error " + err);
 });
 
-
-//username, password
-var registration = function(username, password){
-    client.get("id", function(err, reply){
-        var currentId = 0;
-        if(!reply){
-            client.set("id", 0);
-        }else{
-            currentId = reply;
-        }
-        client.hmset(username, "password", password, "id", currentId);
-        console.log(currentId);
-    });
-    
-
-    client.incr("id");
-    
-};
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////
 
 // Konfiguracja passport.js
 passport.serializeUser(function (user, done) {
@@ -56,37 +39,29 @@ passport.deserializeUser(function (obj, done) {
 });
 
 passport.use(new LocalStrategy(
-    function (username, password, done) {        
-        client.hgetall(username, function(err, reply){
-            if(reply){
-                if(password === reply.password){
-                    console.log("Zalogowano poprzez REDIS uzytkownika " + username);
-                    return done(null, {
-                        username: username,
-                        password: password
-                    });
-                }else{
-                    return done(null, false, { message : "Wrong password" });
-                }
-                         
-            }else{
-                return done(null, false, { message : "No such user" } );
-            }
-        });
+    function (username, password, done) {
+        if ((username === 'admin') && (password === 'tajne')) {
+            console.log("Udane logowanie...");
+            return done(null, {
+                username: username,
+                password: password
+            });
+        } else {
+            return done(null, false);
+        }
     }
 ));
 
 
 
 
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
+// all environments
+app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use(express.favicon());
+app.use(express.logger('dev'));
+app.use(express.json());
 app.use(express.cookieParser());
 app.use(express.urlencoded());
 app.use(express.session({
@@ -96,21 +71,56 @@ app.use(express.session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(express.methodOverride()); //*************
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static("bower_components"));
 
+// development only
+if ('development' == app.get('env')) {
+  app.use(express.errorHandler());
+}
+
+//app.get('/', routes.index);
+app.get('/users', user.list);
+//app.get('/login', index.login);
+//app.get('/game', index.game);
+app.get('/chat', index.chat);
+app.get('/mafia', index.mafia);
+app.get('/village', index.village);
+app.get('/spectator', index.spectator);
 
 
 
-/////////////////////////////////////////////////////////////////////////////////////////////
 
 
-app.get('/game', isAuthenticated, function(req, res){
-    //res.sendfile(__dirname + '/public/index.html');
-    //console.log(req.user.username);
+
+app.get('/', function(req, res){
+    var html = "Hello";
+    if(!req.user)
+        html = '<a href="/login"> Zaloguj sie</a> ';
+    else{
+        html = '<a href="/game"> Zagraj</a>';
+        //html +=
+    }
+    res.send(html);
+}); 
+
+
+app.get('/game', isAuthenticated,  function(req, res){
     res.render('game');
 });
+
+
+
+
+//isLoggedIn,
+app.get('/login', function(req, res){
+    //res.redirect('login.html');
+    res.render('login');
+});
+
+
 
 app.post('/login',
     passport.authenticate('local', {
@@ -123,56 +133,26 @@ app.post('/login',
     }
 );
 
-//isLoggedIn,
-app.get('/login', isLoggedIn, function(req, res){
-    res.render('login');
-});
-
-app.get('/register',isLoggedIn, function(req, res){
-    res.render('register');
-});
-
-app.get('/', function(req, res){
-    var html = "Hello";
-    if(!req.user)
-        html = '<a href="/login"> Zaloguj sie</a> ';
-    else{
-        html = '<a href="/game"> Zagraj</a>';
-        //html +=
-    }
-    res.send(html);
-}); 
-app.post('/register',
-    function (req, res) {
-        //req.body.username;
-        console.log("ZZZZZZZZZ");
-        registration(req.body.username, req.body.password);
-        //res.redirect('/login');
-        res.end();
-    }
-);
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-function isLoggedIn(req, res, next) {
-    if(req.isAuthenticated()) { 
-        res.redirect('/');
-    }else{
-        return next();
-    }
-}
 
 function isAuthenticated(req, res, next) {
   if (req.isAuthenticated()) { return next(); }
   res.redirect('/login')
 }
 
-function isRegistered(req, res, next) {
-  if (req.isAuthenticated()) { return next(); }
-  res.redirect('/register')
-}
+
+
+
+io.set('authorization', passportSocketIo.authorize({
+    passport: passport,
+    cookieParser: express.cookieParser,
+    key: sessionKey, // nazwa ciasteczka, w którym express/connect przechowuje identyfikator sesji
+    secret: sessionSecret,
+    store: sessionStore,
+    success: onAuthorizeSuccess,
+    fail: onAuthorizeFail
+}));
+
+
 
 var onAuthorizeSuccess = function (data, accept) {
     console.log('Udane połączenie z socket.io');
@@ -188,23 +168,21 @@ var onAuthorizeFail = function (data, message, error, accept) {
 };
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-io.set('log level', 2);
-
-io.set('authorization', passportSocketIo.authorize({
-    passport: passport,
-    cookieParser: express.cookieParser,
-    key: sessionKey, // nazwa ciasteczka, w którym express/connect przechowuje identyfikator sesji
-    secret: sessionSecret,
-    store: sessionStore,
-    success: onAuthorizeSuccess,
-    fail: onAuthorizeFail
-}));
 
 
-//////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
 
 //Available characters to choose from
 var characters = {
@@ -237,7 +215,6 @@ var set = [characters.village.villager, characters.mafia.mafia, characters.villa
 var games = {};
 var roomID = 0;
 var timeOuts = [];
-
 
 
 io.sockets.on('connection', function (socket) {
@@ -301,9 +278,6 @@ io.sockets.on('connection', function (socket) {
             a new one is created just for him.
         */
         socket.on("add user", function(username){
-            console.log("WHY AINT YOU WORKING");
-            console.log("HELLLO     " + username);
-
             var joined = false;
             socket.username = username;
 
@@ -583,4 +557,5 @@ io.sockets.on('connection', function (socket) {
 
         // }, 60000);
     };
+
 });
