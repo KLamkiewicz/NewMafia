@@ -109,7 +109,7 @@ app.use(express.static("bower_components"));
 app.get('/game', isAuthenticated, function(req, res){
     //res.sendfile(__dirname + '/public/index.html');
     //console.log(req.user.username);
-    res.render('game');
+    res.render('game', {name : req.user.username});
 });
 
 app.post('/login',
@@ -119,7 +119,8 @@ app.post('/login',
     function (req, res) {
         //res.redirect('/authorized.html');
         res.send("HHH");
-        res.redirect('/');
+        //change to '/'
+        res.redirect('/game');
     }
 );
 
@@ -145,10 +146,11 @@ app.get('/', function(req, res){
 app.post('/register',
     function (req, res) {
         //req.body.username;
-        console.log("ZZZZZZZZZ");
+        console.log("Registered");
         registration(req.body.username, req.body.password);
         //res.redirect('/login');
-        res.end();
+        res.redirect('/login');
+        //res.end();
     }
 );
 
@@ -166,13 +168,13 @@ function isLoggedIn(req, res, next) {
 
 function isAuthenticated(req, res, next) {
   if (req.isAuthenticated()) { return next(); }
-  res.redirect('/login')
+  res.redirect('/login');
 }
 
-function isRegistered(req, res, next) {
-  if (req.isAuthenticated()) { return next(); }
-  res.redirect('/register')
-}
+// function isRegistered(req, res, next) {
+//   if (req.isAuthenticated()) { return next(); }
+//   res.redirect('/register');
+// }
 
 var onAuthorizeSuccess = function (data, accept) {
     console.log('Udane połączenie z socket.io');
@@ -193,6 +195,7 @@ var onAuthorizeFail = function (data, message, error, accept) {
 
 io.set('log level', 2);
 
+//Adding User to handshake, which is accesible through socket.handshake.user
 io.set('authorization', passportSocketIo.authorize({
     passport: passport,
     cookieParser: express.cookieParser,
@@ -302,6 +305,8 @@ io.sockets.on('connection', function (socket) {
         */
         socket.on("add user", function(username){
             console.log("WHY AINT YOU WORKING");
+            username = socket.handshake.user.username;
+            //console.log(sessionStore);
             console.log("HELLLO     " + username);
 
             var joined = false;

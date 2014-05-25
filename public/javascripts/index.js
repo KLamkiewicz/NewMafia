@@ -1,74 +1,28 @@
 $(function(){
 var socket = io.connect();
 
-//Login
 
-	// $.ajax({
-	// 	url: '/login',
-	// 	method: "GET",
-	// 	success: function(html){
-	// 		prepareLoginView(html);
-	// 	},
-	// 	fail: function(){
+	//Can remove add user' and add him from auth on connect
+	socket.on("connect", function(){
+		console.log("You have been connected");
 
-	// 	}
-	// });
-	
-
-	var prepareLoginView = function(html){
-		$("body").html(html);
-		//Login to the game
-		$("#loginButton").click(function(e){
-			e.preventDefault();
-			console.log($("#username").val());
-			login();
-		});
-		$("#loginButton").hide(); 
-	};
-
-
-
-	//Client joins the game and is added as a new user 
-	var login = function(){
-		//Hide login form, show game
-		// socket.emit("add user", $("#username").val());
 		socket.emit("add user", "admin");
-		// $("#loginForm").hide();
-		// $("#game").show();
+	});
 
-		// $.ajax({
-		// 	url: '/game',
-		// 	method: "GET",
-		// 	success: function(html){
-		// 		prepareGameView(html);
-		// 	},
-		// 	fail: function(){
-
-		// 	}
-		// });
-	};
-	
-	login();
+	$("#sendMessage").click(function(e){
+		e.preventDefault();
+		socket.emit("send message", $("#chatMessage").val());
+		$("#chatMessage").val("");
+	});
 
 
-	var prepareGameView = function(html){
-		$("body").html(html);
-		$("#sendMessage").hide();
-		$("#sendMessage").click(function(e){
-			e.preventDefault();
-			socket.emit("send message", $("#chatMessage").val());
-			$("#chatMessage").val("");
-		});
-		socket.emit("ready for list");
-	};
+	socket.emit("ready for list");
+	//prepareGameView();
 
 
 // //Game
 var listOfPlayers = [];
 
-	socket.on("connect", function(){
-		console.log("You have been connected");
-	});
 
 
 	//Message received
