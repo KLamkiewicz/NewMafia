@@ -10,6 +10,28 @@ var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 server.listen(80);
 
+var connect = require('connect');
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+var socketIo = require('socket.io');
+var passportSocketIo = require('passport.socketio');
+var sessionStore = new connect.session.MemoryStore();
+var sessionSecret = 'wielkiSekret44';
+var sessionKey = 'connect.sid';
+
+
+//REDIS
+var redis = require("redis");
+var client = redis.createClient();
+
+client.on("error", function (err) {
+    console.log("Error " + err);
+});
+
+
+
+
+
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -18,9 +40,16 @@ app.set('view engine', 'ejs');
 app.use(express.favicon());
 app.use(express.logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded());
 app.use(express.cookieParser());
-app.use(express.methodOverride());
+app.use(express.urlencoded());
+app.use(express.session({
+    store: sessionStore,
+    key: sessionKey,
+    secret: sessionSecret
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(express.methodOverride()); //*************
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static("bower_components"));
@@ -38,6 +67,44 @@ app.get('/chat', index.chat);
 app.get('/mafia', index.mafia);
 app.get('/village', index.village);
 app.get('/spectator', index.spectator);
+
+
+//isLoggedIn,
+app.get('/logging', function(req, res){
+    //res.redirect('login.html');
+    res.render('logging');
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //Available characters to choose from
 var characters = {
