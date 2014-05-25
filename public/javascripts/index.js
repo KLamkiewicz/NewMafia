@@ -3,16 +3,16 @@ var socket = io.connect();
 
 //Login
 
-	$.ajax({
-		url: '/login',
-		method: "GET",
-		success: function(html){
-			prepareLoginView(html);
-		},
-		fail: function(){
+	// $.ajax({
+	// 	url: '/login',
+	// 	method: "GET",
+	// 	success: function(html){
+	// 		prepareLoginView(html);
+	// 	},
+	// 	fail: function(){
 
-		}
-	});
+	// 	}
+	// });
 
 	var prepareLoginView = function(html){
 		$("body").html(html);

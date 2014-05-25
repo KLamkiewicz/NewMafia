@@ -84,14 +84,37 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
-app.get('/', routes.index);
+//app.get('/', routes.index);
 app.get('/users', user.list);
 //app.get('/login', index.login);
-app.get('/game', index.game);
+//app.get('/game', index.game);
 app.get('/chat', index.chat);
 app.get('/mafia', index.mafia);
 app.get('/village', index.village);
 app.get('/spectator', index.spectator);
+
+
+
+
+
+
+app.get('/', function(req, res){
+    var html = "Hello";
+    if(!req.user)
+        html = '<a href="/login"> Zaloguj sie</a> ';
+    else{
+        html = '<a href="/game"> Zagraj</a>';
+        //html +=
+    }
+    res.send(html);
+}); 
+
+
+app.get('/game', function(req, res){
+    res.render('game');
+});
+
+
 
 
 //isLoggedIn,

@@ -10,9 +10,9 @@ exports.login = function(req, res){
 	res.sendfile('views/login.ejs', {root: __dirname + '../../'});
 };
 
-exports.game = function(req, res){
-	res.sendfile('views/game.ejs', {root: __dirname + '../../'});
-};
+// exports.game = function(req, res){
+// 	res.sendfile('views/game.ejs', {root: __dirname + '../../'});
+// };
 
 exports.chat = function(req, res){
 	res.sendfile('views/chatWrap.ejs', {root: __dirname + '../../'});
