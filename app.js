@@ -36,11 +36,8 @@ var registration = function(username, password){
         }
         client.hmset(username, "password", password, "id", currentId);
         console.log(currentId);
-    });
-    
-
-    client.incr("id");
-    
+        client.incr("id");
+    }); 
 };
 
 
@@ -146,6 +143,7 @@ app.get('/', function(req, res){
         html = '<a href="/game"> Zagraj</a>';
         //html +=
     }
+    console.log(req.session.game);
     res.send(html);
 }); 
 app.post('/register',
@@ -253,8 +251,17 @@ io.sockets.on('connection', function (socket) {
 
 //Sockets
     var loginName = socket.handshake.user.username;
-    // socket.username = socket.handshake.user.username;
-    // var joinGame = function(){
+
+    var sessionID = socket.handshake.cookie['connect.sid'];
+
+
+//SAVING TO SESSION
+    sessionStore.load(sessionID, function(err, session) {
+        console.log("inside");
+        session.game = { "start" : false};
+        console.log(session);
+        session.save();
+    });
 
     // };
 
@@ -413,6 +420,19 @@ io.sockets.on('connection', function (socket) {
 
 //Functions
 
+
+    var nextRound = function(room){
+        var dayTime = games[room].day;
+        //Check if there is more mafia than villagers or if all mafia is dead
+        //if(mafia.count>0 && mafia.count<village.count)
+        if(true){
+            io.sockets.in(room).emit('next round', dayTime);
+        //else if(mafia.count == 0, village wins)
+        }else{
+            io.sockets.in(room).emit('');
+        }
+        //else if(village.count <= mafia.count, mafia wins)
+    };
     
     var theKilling = function(count){
         var votesCasted = 0;
@@ -498,8 +518,10 @@ io.sockets.on('connection', function (socket) {
                                     }
                                     if(games[room].day){
                                         //change to night
+                                        games[room].day = false;
                                     }else{
                                         //change to day
+                                        games[room].day = true;
                                     }
                                 }
                             }
@@ -521,6 +543,9 @@ io.sockets.on('connection', function (socket) {
 
 
             }
+
+            nextRound((socket.room).toString());
+
         }
     };
 

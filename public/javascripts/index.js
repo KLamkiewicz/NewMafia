@@ -44,6 +44,7 @@ var listOfPlayers = [];
 		});
 	});
 
+
 	/*
 		Game start modifies the view of the client based on allegiance,
 		if he is placed on the village side, he is "sleeping" and may be killed,
@@ -83,6 +84,15 @@ var listOfPlayers = [];
 			});
 		});
 	};
+
+	socket.on('next round', function(isDay){
+		if(isDay){
+			console.log("Next round will be sunny");
+		}else{
+			console.log("Next round will be bloody");
+		}
+		console.log(isDay);
+	});
 
 	/*
 		On joining the game client receives the list of all players,
