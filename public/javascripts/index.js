@@ -96,13 +96,14 @@ var listOfPlayers = [];
 				});
 			});
 		}else{
+			console.log("ITS DAY TIME");
 			console.log(listOfPlayers);
 			$.each(listOfPlayers, function(id, player){
+				console.log("APPEND");
 				 $("#killAll").append('<option value=' + player  + '>' + player +'</option>');
 			});
 			$("#killAll").change(function(){
 				$("#killAll option:selected").each(function(){
-					console.log($(this).val());
 					socket.emit("kill vote", $(this).val());
 				});
 			});
