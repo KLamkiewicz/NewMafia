@@ -386,6 +386,7 @@ io.sockets.on('connection', function (socket) {
 
         socket.on("kill vote", function(vote){
             var count = 0;
+            var day;
             //Object.keys(games[socket.room].players).length
             //players[loginName].vote = vote;
             //console.log(players[loginName].vote);
@@ -400,6 +401,7 @@ io.sockets.on('connection', function (socket) {
                     if(room === (socket.room).toString()){
                         games[room].players[loginName].vote = vote;
                         for(var p in games[room].players){
+                            day = games[room].day;
                             if(!games[room].day){
                                 if(games[room].players[p].side === 'mafia' && games[room].players[p].alive){
                                     count++;
@@ -410,10 +412,13 @@ io.sockets.on('connection', function (socket) {
                                }     
                             }
                         }
+                        break;
                     }
                 }
             }
-
+            console.log("ITS " + day + " number of allowed votes " + count);
+            console.log("TEST ");
+            console.log(games[socket.room].players);
             theKilling(count);
         });
 
@@ -545,7 +550,6 @@ io.sockets.on('connection', function (socket) {
             }
 
             nextRound((socket.room).toString());
-
         }
     };
 

@@ -54,21 +54,28 @@ var listOfPlayers = [];
 	var startTheGame = function(html, role){
 		console.log(role);
 		if(role === 'village'){
-			$("#chatWrap").remove();
-			//$("#chatWrap").html("");
+			//$("#chatWrap").remove();
+			$("#play").remove();
 		}
 		else if(role ==='mafia'){
 			//get list of players
-			$("#game").append(html);
-			$.each(listOfPlayers, function(id, player){
-				 $("#kill").append('<option value=' + player  + '>' + player +'</option>');
-			});
-			choiceChange();
+			$("#play").append(html);
+			choiceChange(false);
 		}
 	};
 
-	var nextRound = function(){
-
+	var nextRound = function(data, isDay){
+		if(isDay){
+			if($("#play").length<1){
+				$("#game").append(data);
+			}else{
+				$("#play").remove();
+				$("#game").append(data);
+			}
+			choiceChange(true);
+		}else{
+			//mafia gets to hunt, village gets to die
+		}
 	};
 
 	/*
@@ -76,18 +83,48 @@ var listOfPlayers = [];
 		vote counting is started after all players cast their vote
 		//or alloted time is up
 	*/
-	var choiceChange = function(){
-		$("#kill").change(function(){
-			$("#kill option:selected").each(function(){
-				//console.log($(this).val());
-				socket.emit("kill vote", $(this).val());
+	var choiceChange = function(isDay){
+		if(!isDay){
+			console.log(listOfPlayers);
+			$.each(listOfPlayers, function(id, player){
+				 $("#kill").append('<option value=' + player  + '>' + player +'</option>');
 			});
-		});
+			$("#kill").change(function(){
+				$("#kill option:selected").each(function(){
+					console.log($(this).val());
+					socket.emit("kill vote", $(this).val());
+				});
+			});
+		}else{
+			console.log(listOfPlayers);
+			$.each(listOfPlayers, function(id, player){
+				 $("#killAll").append('<option value=' + player  + '>' + player +'</option>');
+			});
+			$("#killAll").change(function(){
+				$("#killAll option:selected").each(function(){
+					console.log($(this).val());
+					socket.emit("kill vote", $(this).val());
+				});
+			});
+		}
 	};
 
 	socket.on('next round', function(isDay){
 		if(isDay){
 			console.log("Next round will be sunny");
+
+			$.ajax({
+				url: '/village',
+				method: "GET",
+				success: function(data){
+					console.log("SUCCESSS");
+					 nextRound(data, isDay);
+				},
+				fail: function(){
+
+				}
+			});
+
 		}else{
 			console.log("Next round will be bloody");
 		}
@@ -125,12 +162,12 @@ var listOfPlayers = [];
 		$("#dead").append(player);
 	});
 
-	socket.on("player killed", function(player){
-		var id = listOfPlayers.indexOf(player);
-		listOfPlayers.splice(id, 1);
-		$("#" + player).remove();
-		$("#dead").append(player);
-		$("#chat").append("Player " + player + " has been tragically killed");
-	});
+	// socket.on("player killed", function(player){
+	// 	var id = listOfPlayers.indexOf(player);
+	// 	listOfPlayers.splice(id, 1);
+	// 	$("#" + player).remove();
+	// 	$("#dead").append(player);
+	// 	$("#chat").append("Player " + player + " has been tragically killed");
+	// });
 
 });
