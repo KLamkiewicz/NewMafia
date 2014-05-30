@@ -63,7 +63,8 @@ var listOfPlayers = [];
 		}
 	};
 
-	var nextRound = function(data, isDay){
+	var nextRound = function(data, isDay, side){
+
 		if(isDay){
 			if($("#play").length<1){
 				$("#game").append(data);
@@ -73,16 +74,22 @@ var listOfPlayers = [];
 			}
 			choiceChange(true);
 		}else{
-			//mafia gets to hunt, village gets to die
+			if(side === 'village'){
+				$("#play").remove();
+			}else if(side === 'mafia'){
+				$("#play").remove();
+				$("#game").append(data);
+				choiceChange(false);
+			}
 		}
-		console.log("Do not refresh");
-		//chat();
+
+
+		//Reassing click
 		$("#sendMessage").click(function(e){
 			e.preventDefault();
 			socket.emit("send message", $("#chatMessage").val());
 			$("#chatMessage").val("");
 		});
-		console.log($("#sendMessage").data('events'));
 	};
 
 	/*
@@ -117,7 +124,12 @@ var listOfPlayers = [];
 		}
 	};
 
-	socket.on('next round', function(isDay){
+	socket.on('next round', function(nextRoundData){
+		var isDay = nextRoundData.day;
+		var side = nextRoundData.side;
+		console.log("H E      ZXXXXXXXXX HE FDSDSAD{PA {");
+		console.log(nextRoundData);
+
 		if(isDay){
 			console.log("Next round will be sunny");
 
@@ -135,6 +147,17 @@ var listOfPlayers = [];
 
 		}else{
 			console.log("Next round will be bloody");
+			$.ajax({
+				url: '/mafia',
+				method: "GET",
+				success: function(data){
+					console.log("SUCCESSS");
+					nextRound(data, isDay, side);
+				},
+				fail: function(){
+
+				}
+			});
 		}
 		console.log(isDay);
 	});

@@ -531,12 +531,19 @@ io.sockets.on('connection', function (socket) {
         }else{
             games[socket.room].day = true;
         }
+        var day = games[socket.room].day;
+
         console.log("ITS CHANGING TO " + games[socket.room].day);
 
         //Check if there is more mafia than villagers or if all mafia is dead
         //if(mafia.count>0 && mafia.count<village.count)
         if(true){
-            io.sockets.in(room).emit('next round', games[socket.room].day);
+            //io.sockets.in(room).emit('next round', games[socket.room].day);
+
+            io.sockets.clients(room.toString()).forEach(function(s, i) {
+                var side = games[room].players[s.username].side;
+                s.emit('next round', {day: day, side: side});
+            });
         //else if(mafia.count == 0, village wins)
         }else{
             io.sockets.in(room).emit('');
