@@ -236,8 +236,7 @@ var characters = {
 };
 
 //Predefined game set from the characters object
-var set = [characters.village.villager, characters.mafia.mafia];
-//, characters.village.cop, characters.mafia.mafia];
+var set = [characters.village.villager, characters.mafia.mafia, characters.village.cop, characters.mafia.mafia];
 
 
 //This object stores all of the games
@@ -586,14 +585,14 @@ io.sockets.on('connection', function (socket) {
         in the disconnect socket           
     */
     var checkIfReady = function(players){
-        if(players >= 2){
+        if(players >= 4){
             games[socket.room].isStarting = true;
             //games[socket.room].timeout = timeout;
             timeOuts[socket.room] = setTimeout(function(){
                 console.log("Game started in room " + socket.room);
                 startGame(socket.room);
             }, 5000);
-            console.log("Game will start in 20 seconds in room " + socket.room);
+            console.log("Game will start in 5 seconds in room " + socket.room);
         }
     };
 

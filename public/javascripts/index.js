@@ -10,17 +10,20 @@ var socket = io.connect();
 	});
 
 
-	//Message sent
-	$("#sendMessage").click(function(e){
-		e.preventDefault();
-		socket.emit("send message", $("#chatMessage").val());
-		$("#chatMessage").val("");
-	});
+	var chat = function(){
+		//Message sent
+		$("#sendMessage").click(function(e){
+			e.preventDefault();
+			socket.emit("send message", $("#chatMessage").val());
+			$("#chatMessage").val("");
+		});
+		//Message received
+		socket.on("received message", function(username, message){
+			$("#chat").append("<div>" + username + ": " + message + "</div>");
+		});
+	};
 
-	//Message received
-	socket.on("received message", function(username, message){
-		$("#chat").append("<div>" + username + ": " + message + "</div>");
-	});
+	chat();
 
 
 // //Game
@@ -129,6 +132,7 @@ var listOfPlayers = [];
 		}else{
 			console.log("Next round will be bloody");
 		}
+		chat();
 		console.log(isDay);
 	});
 
