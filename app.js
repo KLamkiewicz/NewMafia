@@ -517,6 +517,9 @@ io.sockets.on('connection', function (socket) {
 
             }
 
+            for(var v in games[socket.room].players){
+                games[socket.room].players[v].vote = "";
+            }
             nextRound((socket.room).toString());
         }
     };

@@ -10,20 +10,16 @@ var socket = io.connect();
 	});
 
 
-	var chat = function(){
-		//Message sent
-		$("#sendMessage").click(function(e){
-			e.preventDefault();
-			socket.emit("send message", $("#chatMessage").val());
-			$("#chatMessage").val("");
-		});
-		//Message received
-		socket.on("received message", function(username, message){
-			$("#chat").append("<div>" + username + ": " + message + "</div>");
-		});
-	};
-
-	chat();
+	//Message sent
+	$("#sendMessage").click(function(e){
+		e.preventDefault();
+		socket.emit("send message", $("#chatMessage").val());
+		$("#chatMessage").val("");
+	});
+	//Message received
+	socket.on("received message", function(username, message){
+		$("#chat").append("<div>" + username + ": " + message + "</div>");
+	});
 
 
 // //Game
@@ -79,6 +75,14 @@ var listOfPlayers = [];
 		}else{
 			//mafia gets to hunt, village gets to die
 		}
+		console.log("Do not refresh");
+		//chat();
+		$("#sendMessage").click(function(e){
+			e.preventDefault();
+			socket.emit("send message", $("#chatMessage").val());
+			$("#chatMessage").val("");
+		});
+		console.log($("#sendMessage").data('events'));
 	};
 
 	/*
@@ -132,7 +136,6 @@ var listOfPlayers = [];
 		}else{
 			console.log("Next round will be bloody");
 		}
-		chat();
 		console.log(isDay);
 	});
 
