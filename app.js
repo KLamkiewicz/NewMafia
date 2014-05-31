@@ -532,17 +532,15 @@ io.sockets.on('connection', function (socket) {
             games[socket.room].day = true;
         }
         var day = games[socket.room].day;
-
+        var killList = ["ZYGMUNT", "ALOJZY", "STEFAN"];
         console.log("ITS CHANGING TO " + games[socket.room].day);
 
         //Check if there is more mafia than villagers or if all mafia is dead
         //if(mafia.count>0 && mafia.count<village.count)
         if(true){
-            //io.sockets.in(room).emit('next round', games[socket.room].day);
-
             io.sockets.clients(room.toString()).forEach(function(s, i) {
                 var side = games[room].players[s.username].side;
-                s.emit('next round', {day: day, side: side});
+                s.emit('next round', {day: day, side: side, list: killList});
             });
         //else if(mafia.count == 0, village wins)
         }else{
@@ -612,6 +610,7 @@ io.sockets.on('connection', function (socket) {
         assign them to the players
     */
     var startGame = function(room){
+        var killList = ["ZYGMUNT", "ALOJZY", "STEFAN"];
         games[socket.room].isStarting = false;
         games[socket.room].started = true;
         //Pseudo-random sort
@@ -625,7 +624,7 @@ io.sockets.on('connection', function (socket) {
             games[room].players[s.username].side = set[i].side;
             games[room].players[s.username].name = set[i].name;
             //emit list of players to ensure there is no error {set[i], list}
-            s.emit('start game', set[i]);
+            s.emit('start game', {side: set[i].side, list: killList});
         });
         // timeOuts[socket.room] = setTimeout(function(){
 
