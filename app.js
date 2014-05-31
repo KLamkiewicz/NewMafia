@@ -419,6 +419,7 @@ io.sockets.on('connection', function (socket) {
         var voteArray = [];
         var votes = {};
         var topVotes = {};
+        var killed;
 
         for(var room in games){
             if(games.hasOwnProperty(room)){
@@ -474,37 +475,32 @@ io.sockets.on('connection', function (socket) {
                 E.g. 3 votes on A, 2 votes on B, 2 votes on C
                 A "wins", but the vote is not the majority so
                 no one is killed
-            */
+            */                      
             if(Object.keys(topVotes).length === 1){
                 //This will only make one loop, because there is only one field in the object
                 for(var n in topVotes){
+                    /*jshint loopfunc: true */
                     //Kill this one
                     console.log("KILL");
                     console.log(n);
                     if((topVotes[n] / count) > 0.5){
                         console.log("Majority");
-                        for(room in games){
-                            if(games.hasOwnProperty(room)){
-                                if(room === (socket.room).toString()){
-                                    for(var pl in games[room].players){
-                                        if(games[room].players[pl].username === n){
-                                            //emit who was killed and go on with next day
-                                            console.log(pl);
-
-                                            games[room].players[pl].alive = false;
-                                            io.sockets.in(room).emit("player killed", n);
-                                            break;
-                                        }
-                                    }
-                                }
+                        io.sockets.clients(room.toString()).forEach(function(s, i) {
+                            if(s.username === n ){
+                                s.alive = false;
+                                s.emit("you are dead", "You have been killed");
                             }
-                        }
+                            s.emit('player killed', n);
+                        });
                     }else{
                         console.log("Minority");
                         //kill no one
                     }
+
+
                 }
             }
+
             /*
                 There is a tie amongst the "winners"
                 There are two types of possible outcomes ??change
@@ -520,6 +516,8 @@ io.sockets.on('connection', function (socket) {
             for(var v in games[socket.room].players){
                 games[socket.room].players[v].vote = "";
             }
+
+            //killed.emit('You have been killed', "You are dead");
             nextRound((socket.room).toString());
         }
     };
@@ -533,6 +531,7 @@ io.sockets.on('connection', function (socket) {
         }
         var day = games[socket.room].day;
         var killList = [];
+        var mafiaList = [];
         console.log("ITS CHANGING TO " + games[socket.room].day);
 
         //Check if there is more mafia than villagers or if all mafia is dead
@@ -545,11 +544,26 @@ io.sockets.on('connection', function (socket) {
             //Remove username from the list that is going to be sent to him and add him back after emit
             io.sockets.clients(room.toString()).forEach(function(s, i) {
                 var side = games[room].players[s.username].side;
-                var userIndex = killList.indexOf(s.username);
-                killList.splice(userIndex, 1);
-                s.emit('next round', {day: day, side: side, list: killList});
-                killList.splice(userIndex, 0, s.username);
-            });
+                if(day){
+                    var userIndex = killList.indexOf(s.username);
+                    killList.splice(userIndex, 1);
+                    s.emit('next round', {day: day, side: side, list: killList});
+                    killList.splice(userIndex, 0, s.username);
+                }else{
+                    if(side === 'village'){
+                        mafiaList.push(s.username);
+                        s.emit('next round', {day: day, side: side, list: []});
+                    }
+                }
+            });  
+
+            if(!day){
+                io.sockets.clients(room.toString()).forEach(function(s, i) {
+                    var side = games[room].players[s.username].side;
+                    if(side === 'mafia')
+                        s.emit('next round', {day: day, side: side, list: mafiaList});
+                });
+            }  
 
         //else if(mafia.count == 0, village wins)
         }else{
@@ -638,7 +652,9 @@ io.sockets.on('connection', function (socket) {
         });
 
         io.sockets.clients(room.toString()).forEach(function(s, i) {
-            s.emit('start game', {side: set[i].side, list: killList});
+            var side = games[room].players[s.username].side;
+            if(side === 'mafia')
+                s.emit('start game', {side: side, list: killList});
         });
         // timeOuts[socket.room] = setTimeout(function(){
 

@@ -199,12 +199,16 @@ var listOfPlayers = [];
 		$("#dead").append(player);
 	});
 
-	// socket.on("player killed", function(player){
-	// 	var id = listOfPlayers.indexOf(player);
-	// 	listOfPlayers.splice(id, 1);
-	// 	$("#" + player).remove();
-	// 	$("#dead").append(player);
-	// 	$("#chat").append("Player " + player + " has been tragically killed");
-	// });
+	socket.on("player killed", function(player){
+		var id = listOfPlayers.indexOf(player);
+		listOfPlayers.splice(id, 1);
+		$("#" + player).remove();
+		$("#dead").append(player);
+		$("#chat").append("Player " + player + " has been tragically killed");
+	});
+
+	socket.on('you are dead', function(data){
+		console.log(data);
+	});
 
 });
