@@ -77,12 +77,12 @@ var listOfPlayers = [];
 			if(side === 'village'){
 				$("#play").remove();
 			}else if(side === 'mafia'){
-				$("#play").remove();
-				$("#game").append(data);
+				console.log("REMOVING PLAY, appending mafia");
+				$("#village").remove();
+				$("#play").append(data);
 				choiceChange(false);
 			}
 		}
-
 
 		//Reassing click
 		$("#sendMessage").click(function(e){
