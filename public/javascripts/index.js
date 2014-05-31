@@ -11,15 +11,21 @@ var socket = io.connect();
 
 
 	//Message sent
-	$("#sendMessage").click(function(e){
-		e.preventDefault();
-		socket.emit("send message", $("#chatMessage").val());
-		$("#chatMessage").val("");
-	});
+	var sendMessageClick = function(){
+		$("#sendMessage").click(function(e){
+			e.preventDefault();
+			socket.emit("send message", $("#chatMessage").val());
+			$("#chatMessage").val("");
+		});
+	};
+	sendMessageClick();
 	//Message received
 	socket.on("received message", function(username, message){
 		$("#chat").append("<div>" + username + ": " + message + "</div>");
 	});
+
+
+
 
 
 // //Game
@@ -72,24 +78,20 @@ var listOfPlayers = [];
 				$("#play").remove();
 				$("#game").append(data);
 			}
+			$("#chat").html('');
+			sendMessageClick();
 			choiceChange(true);
+
 		}else{
 			if(side === 'village'){
 				$("#play").remove();
 			}else if(side === 'mafia'){
-				console.log("REMOVING PLAY, appending mafia");
 				$("#village").remove();
 				$("#play").append(data);
+				$("#chat").html('');
 				choiceChange(false);
 			}
 		}
-
-		//Reassing click
-		$("#sendMessage").click(function(e){
-			e.preventDefault();
-			socket.emit("send message", $("#chatMessage").val());
-			$("#chatMessage").val("");
-		});
 	};
 
 	/*
