@@ -532,16 +532,25 @@ io.sockets.on('connection', function (socket) {
             games[socket.room].day = true;
         }
         var day = games[socket.room].day;
-        var killList = ["ZYGMUNT", "ALOJZY", "STEFAN"];
+        var killList = [];
         console.log("ITS CHANGING TO " + games[socket.room].day);
 
         //Check if there is more mafia than villagers or if all mafia is dead
         //if(mafia.count>0 && mafia.count<village.count)
         if(true){
             io.sockets.clients(room.toString()).forEach(function(s, i) {
-                var side = games[room].players[s.username].side;
-                s.emit('next round', {day: day, side: side, list: killList});
+                killList.push(s.username);
             });
+
+            //Remove username from the list that is going to be sent to him and add him back after emit
+            io.sockets.clients(room.toString()).forEach(function(s, i) {
+                var side = games[room].players[s.username].side;
+                var userIndex = killList.indexOf(s.username);
+                killList.splice(userIndex, 1);
+                s.emit('next round', {day: day, side: side, list: killList});
+                killList.splice(userIndex, 0, s.username);
+            });
+
         //else if(mafia.count == 0, village wins)
         }else{
             io.sockets.in(room).emit('');
@@ -610,7 +619,7 @@ io.sockets.on('connection', function (socket) {
         assign them to the players
     */
     var startGame = function(room){
-        var killList = ["ZYGMUNT", "ALOJZY", "STEFAN"];
+        var killList = [];
         games[socket.room].isStarting = false;
         games[socket.room].started = true;
         //Pseudo-random sort
@@ -624,6 +633,11 @@ io.sockets.on('connection', function (socket) {
             games[room].players[s.username].side = set[i].side;
             games[room].players[s.username].name = set[i].name;
             //emit list of players to ensure there is no error {set[i], list}
+            if(set[i].side === 'village')
+                killList.push(s.username);
+        });
+
+        io.sockets.clients(room.toString()).forEach(function(s, i) {
             s.emit('start game', {side: set[i].side, list: killList});
         });
         // timeOuts[socket.room] = setTimeout(function(){
