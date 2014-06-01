@@ -245,30 +245,6 @@ var roomID = 0;
 var timeOuts = [];
 
 
-io.of('/dead').on('connection', function (socket) {
-    var username = socket.handshake.user.username;
-
-    for(var room in games){
-        if(games.hasOwnProperty(room)){
-            if(room === (socket.room).toString()){
-                for(var p in games[room].players){
-                    if(games[room].players[p].vote !== ""){
-                        votesCasted++;
-                        voteArray.push(games[room].players[p].vote);
-                    }
-                }
-            }
-        }
-    }
-
-    socket.on("send message", function(message){
-        // io.sockets.in((socket.room).toString()).emit("received message", socket.username, message);
-        // console.log(games);
-        console.log("GOT THE MESSAGE " + message + " FROM " + username);
-        console.log(socket);
-    });
-});
-
 io.sockets.on('connection', function (socket) {
 
 //Sockets
@@ -278,12 +254,12 @@ io.sockets.on('connection', function (socket) {
 
 
 //SAVING TO SESSION
-    sessionStore.load(sessionID, function(err, session) {
-        console.log("inside");
-        session.game = { "start" : false};
-        console.log(session);
-        session.save();
-    });
+    // sessionStore.load(sessionID, function(err, session) {
+    //     console.log("inside");
+    //     session.current = { "start" : false};
+    //     console.log(session);
+    //     session.save();
+    // });
 
     // };
 
@@ -303,7 +279,7 @@ io.sockets.on('connection', function (socket) {
 
                 //Notify players in the room a player has disconnected
                 socket.leave((socket.room).toString());
-                io.sockets.in((socket.room).toString()).emit("player disconnected", socket.username); 
+                io.sockets.in((socket.room).toString()).emit("player disconnected", {name: socket.username, alive: socket.alive} ); 
                 console.log(socket.username + " disconnected from room " + socket.room);
                 console.log("Number of players in room number " + socket.room + " : " + (nP-1));
 
@@ -316,7 +292,7 @@ io.sockets.on('connection', function (socket) {
                     console.log("Game has been stopped in room " + socket.room);
                 }
 
-                if(games[socket.room].started){
+                if(games[socket.room].started && socket.alive){
                     nextRound((socket.room).toString());
                 }
 
@@ -330,14 +306,21 @@ io.sockets.on('connection', function (socket) {
                 }
             }
         });
-
-
+ 
         //Message socket
         socket.on("send message", function(message){
             io.sockets.in((socket.room).toString()).emit("received message", socket.username, message);
             console.log(games);
         });
 
+        socket.on("dead message", function(message){
+            var room = socket.room;
+            io.sockets.clients(room.toString()).forEach(function(s, i) {
+                if(!s.alive){
+                    s.emit("received dead message", socket.username, message);
+                }
+            });
+        });
 
         //Get list of players upon joining the room, wait for the game screen to be prepared
         socket.on("ready for list", function(){

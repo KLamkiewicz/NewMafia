@@ -1,7 +1,5 @@
 $(function(){
 var socket = io.connect('http://' + location.host);
-var deadSocket = io.connect('http://' + location.host + '/dead');
-
 
 	//Can remove add user' and add him from auth on connect
 	socket.on("connect", function(){
@@ -29,12 +27,14 @@ var deadSocket = io.connect('http://' + location.host + '/dead');
 	var enableDeadSocket = function(){
 		$("#sendMessage").click(function(e){
 			e.preventDefault();
-			deadSocket.emit("send message", $("#chatMessage").val());
+			socket.emit("dead message", $("#chatMessage").val());
 			$("#chatMessage").val("");
+			console.log("SENT MESSAGE");
 		});
 
-		deadSocket.on("received message", function(username, message){
-			$("#chat").append("<div>" + username + ": " + message + "</div>");
+		socket.on("received dead message", function(username, message){
+			console.log("WORKING DEAD MESSAGE");
+			$("#chat").append("<div>" + username + ": " + message + "THIS IS DEAD MESSAGE" +"</div>");
 		});
 	};
 
@@ -204,10 +204,14 @@ var listOfPlayers = [];
 		If the player leaves the game, he is killed, there is no mercy for quitters
 	*/
 	socket.on("player disconnected", function(player){
-		var id = listOfPlayers.indexOf(player);
-		listOfPlayers.splice(id, 1);
-		$("#" + player).remove();
-		$("#dead").append(player);
+		var name = player.name;
+		var alive = player.alive;
+		var id = listOfPlayers.indexOf(name);
+		if(alive){
+			listOfPlayers.splice(id, 1);
+			$("#" + name).remove();
+			$("#dead").append(name);
+		}
 	});
 
 	socket.on("player killed", function(player){
