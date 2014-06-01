@@ -104,6 +104,7 @@ app.use(express.static("bower_components"));
 
 app.get('/mafia', index.mafia);
 app.get('/village', index.village);
+app.get('/spectator', index.spectator);
 
 app.get('/game', isAuthenticated, function(req, res){
     //res.sendfile(__dirname + '/public/index.html');
@@ -244,6 +245,29 @@ var roomID = 0;
 var timeOuts = [];
 
 
+io.of('/dead').on('connection', function (socket) {
+    var username = socket.handshake.user.username;
+
+    for(var room in games){
+        if(games.hasOwnProperty(room)){
+            if(room === (socket.room).toString()){
+                for(var p in games[room].players){
+                    if(games[room].players[p].vote !== ""){
+                        votesCasted++;
+                        voteArray.push(games[room].players[p].vote);
+                    }
+                }
+            }
+        }
+    }
+
+    socket.on("send message", function(message){
+        // io.sockets.in((socket.room).toString()).emit("received message", socket.username, message);
+        // console.log(games);
+        console.log("GOT THE MESSAGE " + message + " FROM " + username);
+        console.log(socket);
+    });
+});
 
 io.sockets.on('connection', function (socket) {
 
@@ -313,6 +337,7 @@ io.sockets.on('connection', function (socket) {
             io.sockets.in((socket.room).toString()).emit("received message", socket.username, message);
             console.log(games);
         });
+
 
         //Get list of players upon joining the room, wait for the game screen to be prepared
         socket.on("ready for list", function(){

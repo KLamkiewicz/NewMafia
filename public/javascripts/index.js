@@ -1,5 +1,6 @@
 $(function(){
-var socket = io.connect();
+var socket = io.connect('http://' + location.host);
+var deadSocket = io.connect('http://' + location.host + '/dead');
 
 
 	//Can remove add user' and add him from auth on connect
@@ -25,7 +26,17 @@ var socket = io.connect();
 	});
 
 
+	var enableDeadSocket = function(){
+		$("#sendMessage").click(function(e){
+			e.preventDefault();
+			deadSocket.emit("send message", $("#chatMessage").val());
+			$("#chatMessage").val("");
+		});
 
+		deadSocket.on("received message", function(username, message){
+			$("#chat").append("<div>" + username + ": " + message + "</div>");
+		});
+	};
 
 
 // //Game
@@ -208,7 +219,19 @@ var listOfPlayers = [];
 	});
 
 	socket.on('you are dead', function(data){
-		console.log(data);
+		$("#play").remove();
+		$.ajax({
+			method: "get",
+			url: '/spectator',
+			success: function(html){
+				$("#game").append(html);
+				//$("ch")
+				enableDeadSocket();
+			},
+			fail: function(){
+
+			}
+		});
 	});
 
 });
