@@ -40,9 +40,6 @@ var registration = function(username, password){
     }); 
 };
 
-
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 // Konfiguracja passport.js
@@ -237,7 +234,9 @@ var characters = {
 
 //Predefined game set from the characters object
 var set = [characters.village.villager, characters.mafia.mafia, characters.village.cop, characters.mafia.mafia];
+//,characters.village.villager, characters.village.villager, characters.village.cop];
 
+var PLAYERS_LENGTH = set.length;
 
 //This object stores all of the games
 var games = {};
@@ -291,6 +290,10 @@ io.sockets.on('connection', function (socket) {
                     games[socket.room].isStarting = false;
                     clearTimeout(timeOuts[socket.room]);
                     console.log("Game has been stopped in room " + socket.room);
+                }
+
+                if(games[socket.room].started){
+                    nextRound((socket.room).toString());
                 }
 
                 //If this is the last player in the room, remove the room from the game list
@@ -370,6 +373,8 @@ io.sockets.on('connection', function (socket) {
                 //Creating new id for the next user that won't be able to join
                 roomID++;
             }
+            socket.alive = true;
+
             emitListOfPlayers((socket.room).toString());
             console.log("Socket joined room " + socket.room);
             //console.log("List of rooms ");
@@ -487,6 +492,7 @@ io.sockets.on('connection', function (socket) {
                         console.log("Majority");
                         io.sockets.clients(room.toString()).forEach(function(s, i) {
                             if(s.username === n ){
+                                games[s.room].players[s.username].alive = false;
                                 s.alive = false;
                                 s.emit("you are dead", "You have been killed");
                             }
@@ -496,8 +502,6 @@ io.sockets.on('connection', function (socket) {
                         console.log("Minority");
                         //kill no one
                     }
-
-
                 }
             }
 
@@ -538,21 +542,24 @@ io.sockets.on('connection', function (socket) {
         //if(mafia.count>0 && mafia.count<village.count)
         if(true){
             io.sockets.clients(room.toString()).forEach(function(s, i) {
-                killList.push(s.username);
+                if(s.alive)
+                    killList.push(s.username);
             });
 
             //Remove username from the list that is going to be sent to him and add him back after emit
             io.sockets.clients(room.toString()).forEach(function(s, i) {
                 var side = games[room].players[s.username].side;
-                if(day){
-                    var userIndex = killList.indexOf(s.username);
-                    killList.splice(userIndex, 1);
-                    s.emit('next round', {day: day, side: side, list: killList});
-                    killList.splice(userIndex, 0, s.username);
-                }else{
-                    if(side === 'village'){
-                        mafiaList.push(s.username);
-                        s.emit('next round', {day: day, side: side, list: []});
+                if(s.alive){
+                    if(day){
+                        var userIndex = killList.indexOf(s.username);
+                        killList.splice(userIndex, 1);
+                        s.emit('next round', {day: day, side: side, list: killList});
+                        killList.splice(userIndex, 0, s.username);
+                    }else{
+                        if(side === 'village'){
+                            mafiaList.push(s.username);
+                            s.emit('next round', {day: day, side: side, list: []});
+                        }
                     }
                 }
             });  
@@ -560,8 +567,10 @@ io.sockets.on('connection', function (socket) {
             if(!day){
                 io.sockets.clients(room.toString()).forEach(function(s, i) {
                     var side = games[room].players[s.username].side;
-                    if(side === 'mafia')
-                        s.emit('next round', {day: day, side: side, list: mafiaList});
+                    if(s.alive){
+                        if(side === 'mafia')
+                            s.emit('next round', {day: day, side: side, list: mafiaList});
+                    }
                 });
             }  
 
@@ -616,7 +625,7 @@ io.sockets.on('connection', function (socket) {
         in the disconnect socket           
     */
     var checkIfReady = function(players){
-        if(players >= 4){
+        if(players >= PLAYERS_LENGTH){
             games[socket.room].isStarting = true;
             //games[socket.room].timeout = timeout;
             timeOuts[socket.room] = setTimeout(function(){
@@ -655,6 +664,8 @@ io.sockets.on('connection', function (socket) {
             var side = games[room].players[s.username].side;
             if(side === 'mafia')
                 s.emit('start game', {side: side, list: killList});
+            else if(side === 'village')
+                s.emit('start game', {side: side, list: []});
         });
         // timeOuts[socket.room] = setTimeout(function(){
 
