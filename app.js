@@ -40,7 +40,6 @@ var registration = function(username, password){
     }); 
 };
 
-//////////////////////////////////////////////////////////////////////////////////////////////
 
 // Konfiguracja passport.js
 passport.serializeUser(function (user, done) {
@@ -73,13 +72,6 @@ passport.use(new LocalStrategy(
 ));
 
 
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use(express.favicon());
@@ -96,10 +88,6 @@ app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static("bower_components"));
 
-
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////
 
 
 app.get('/mafia', index.mafia);
@@ -144,6 +132,7 @@ app.get('/', function(req, res){
     console.log(req.session.game);
     res.send(html);
 }); 
+
 app.post('/register',
     function (req, res) {
         //req.body.username;
@@ -154,9 +143,6 @@ app.post('/register',
         //res.end();
     }
 );
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 function isLoggedIn(req, res, next) {
@@ -191,9 +177,6 @@ var onAuthorizeFail = function (data, message, error, accept) {
 };
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 io.set('log level', 2);
 
 //Adding User to handshake, which is accesible through socket.handshake.user
@@ -207,8 +190,6 @@ io.set('authorization', passportSocketIo.authorize({
     fail: onAuthorizeFail
 }));
 
-
-//////////////////////////////////////////////////////////////////
 
 //Available characters to choose from
 var characters = {
@@ -302,7 +283,9 @@ io.sockets.on('connection', function (socket) {
                     console.log("Room number " + socket.room + " has been closed");
                     delete games[socket.room];
                 }else{
-                    delete games[socket.room].players[loginName];
+                    //delete games[socket.room].players[loginName];
+                    socket.alive = false;
+                    games[socket.room].players[loginName].alive = false;
                 }
             }
         });
@@ -367,7 +350,7 @@ io.sockets.on('connection', function (socket) {
                     day: false,
                     players : {
 
-                    }
+                    },
                 };
 
                 games[roomID].players[loginName] = {
@@ -420,14 +403,14 @@ io.sockets.on('connection', function (socket) {
             console.log("ITS " + day + " number of allowed votes " + count);
             console.log("TEST ");
             console.log(games[socket.room].players);
-            theKilling(count);
+            theKilling(count, false);
         });
 
 
 //Functions
 
     
-    var theKilling = function(count){
+    var theKilling = function(count, isTimeout){
         var votesCasted = 0;
         var voteArray = [];
         var votes = {};
@@ -458,10 +441,10 @@ io.sockets.on('connection', function (socket) {
         console.log(votes);
 
         //Check if the votesCasted count equals the number of people allowed to vote
-        if(votesCasted===count?true:false){
+        if(votesCasted===count?true:false || isTimeout){
             /*
                 Check the votes
-                Case: Tie - randomly kill the person from the tied ones
+                Case: Tie - kill no one, you can't decide you can't kill
                 Case: No one - kill no one
                 Case: Player - kill player 
             */
@@ -513,17 +496,6 @@ io.sockets.on('connection', function (socket) {
                 }
             }
 
-            /*
-                There is a tie amongst the "winners"
-                There are two types of possible outcomes ??change
-                First:
-                E.g. A: 3 votes B: 3 votes - votes are exactly 50/50, random
-                E.g. A: 2 votes B: 2 votes C: 2 votes - no one
-            */
-            else if(Object.keys(topVotes).length > 1){
-
-
-            }
 
             for(var v in games[socket.room].players){
                 games[socket.room].players[v].vote = "";
@@ -544,10 +516,23 @@ io.sockets.on('connection', function (socket) {
         var day = games[socket.room].day;
         var killList = [];
         var mafiaList = [];
+        var villageCount = 0;
+        var mafiaCount = 0;
         console.log("ITS CHANGING TO " + games[socket.room].day);
 
+        io.sockets.clients(room.toString()).forEach(function(s, i) {
+            var side = games[room].players[s.username].side;
+            if(s.alive){
+                if(side === 'mafia')
+                    mafiaCount++;
+                else if(side === 'village'){
+                    villageCount++;
+                }
+            }
+        });
+
         //Check if there is more mafia than villagers or if all mafia is dead
-        //if(mafia.count>0 && mafia.count<village.count)
+        //if(mafiaCount>0 && mafiaCount<villageCount)
         if(true){
             io.sockets.clients(room.toString()).forEach(function(s, i) {
                 if(s.alive)
@@ -581,12 +566,15 @@ io.sockets.on('connection', function (socket) {
                     }
                 });
             }  
-
-        //else if(mafia.count == 0, village wins)
+        // else if(mafiaCount === 0){
+        //     io.sockets.in(room).emit("winner", "village");
+        // }
         }else{
             io.sockets.in(room).emit('');
         }
-        //else if(village.count <= mafia.count, mafia wins)
+        //else if(mafiaCount >= villageCount){
+        //  io.sockets.in(room).emit("winner", "mafia");
+        //}
     };
 
     var clearVotes = function(){
@@ -675,8 +663,12 @@ io.sockets.on('connection', function (socket) {
             else if(side === 'village')
                 s.emit('start game', {side: side, list: []});
         });
-        // timeOuts[socket.room] = setTimeout(function(){
+            // timeOuts[socket.room] = setTimeout(function(){
 
-        // }, 60000);
+            // }, 60000);
+        //Zrobic next round po N czasie, a w nextround w srodku rozpoczac licznik na nowo dla nastepnej rundy
+        games[socket.room].voteTime = setInterval(function(){
+            console.log("Emituj czas, jesli osiagnie 0 next round");
+        }, 1000);
     };
 });
