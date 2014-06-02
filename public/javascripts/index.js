@@ -271,6 +271,7 @@ var listOfPlayers = [];
 	});
 
 	socket.on('vote time', function(time){
+		$("#gameTimer").html(time);
 		console.log(time);
 		console.log(dead);
 	});
