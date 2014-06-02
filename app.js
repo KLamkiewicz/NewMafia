@@ -459,6 +459,14 @@ io.sockets.on('connection', function (socket) {
 
         //Check if the votesCasted count equals the number of people allowed to vote
         if(votesCasted===count?true:false || isTimeout){
+            console.log("BEFORE");
+            console.log(games[socket.room].voteInterval);
+            clearInterval(games[socket.room].voteInterval);
+            console.log("AFTER ");
+            //delete is slower than setting to undefined and variable is used later
+            games[socket.room].voteInterval = undefined;
+            console.log(games[socket.room].voteInterval);
+
             /*
                 Check the votes
                 Case: Tie - kill no one, you can't decide you can't kill
@@ -519,6 +527,7 @@ io.sockets.on('connection', function (socket) {
             }
 
             //killed.emit('You have been killed', "You are dead");
+                       
             nextRound((socket.room).toString());
         }
     };
@@ -582,7 +591,21 @@ io.sockets.on('connection', function (socket) {
                             s.emit('next round', {day: day, side: side, list: mafiaList});
                     }
                 });
-            }  
+            } 
+
+        games[socket.room].time = 10;
+        games[socket.room].voteInterval = setInterval(function(){
+            games[socket.room].time--;
+            if(games[socket.room].time <=0){
+                games[socket.room].time = 10;
+                theKilling(count(socket.room), true);
+            }
+            io.sockets.in((socket.room).toString()).emit('vote time', games[socket.room].time);
+        }, 1000);
+        console.log("NEW INTERVAL ");
+        console.log(games[socket.room].voteInterval);
+
+
         // else if(mafiaCount === 0){
         //     io.sockets.in(room).emit("winner", "village");
         // }
@@ -690,7 +713,6 @@ io.sockets.on('connection', function (socket) {
             if(games[socket.room].time <=0){
                 games[socket.room].time = 10;
                 theKilling(count(socket.room), true);
-                clearInterval(games[socket.room].voteInterval);
             }
             io.sockets.in((socket.room).toString()).emit('vote time', games[socket.room].time);
         }, 1000);
