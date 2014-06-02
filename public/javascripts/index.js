@@ -51,13 +51,14 @@ var listOfPlayers = [];
 	socket.on('start game', function(startData){
 		var side = startData.side;
 		var killList = startData.list;
+		var voteList = startData.voteList;
 
 		$.ajax({
 			url: '/' + side,
 			method: "GET",
 			success: function(data){
 				console.log("SUCCESSS");
-				startTheGame(data, side, killList);
+				startTheGame(data, side, killList, voteList);
 			},
 			fail: function(){
 
@@ -75,7 +76,7 @@ var listOfPlayers = [];
 		if he is placed on the mafia side, he may chat in room with the other
 		mafia players, and vote who to kill - majority vote wins
 	*/
-	var startTheGame = function(html, role, killList){
+	var startTheGame = function(html, role, killList, list){
 		console.log(role);
 		if(role === 'village'){
 			//$("#chatWrap").remove();
@@ -84,13 +85,17 @@ var listOfPlayers = [];
 		else if(role ==='mafia'){
 			//get list of players
 			$("#play").append(html);
+
+			$.each(list, function(index, name){
+				$("#mafiaVotes").append("<div class='vote'> <div data-username=" + name + ">" + name + "</div><div></div></div>");
+			});
 			choiceChange(false, killList);
 		}
 	};
 
-	var nextRound = function(data, isDay, side, killList, report){
+	var nextRound = function(data, isDay, side, killList, list, report){
 		console.log("GOT REPORT " + report);
-		
+
 		if(isDay){
 			if($("#play").length<1){
 				$("#game").append(data);
@@ -101,16 +106,25 @@ var listOfPlayers = [];
 			$("#chat").html('');
 			if(report)
 				$("#chat").append(report);
+			
+			$.each(list, function(index, name){
+				$("#villageVotes").append("<div class='vote'> <div data-username=" + name + ">" + name + "</div><div></div></div>");
+			});
+
 			sendMessageClick();
 			choiceChange(true, killList);
-
 		}else{
 			if(side === 'village'){
 				$("#play").remove();
 			}else if(side === 'mafia'){
 				$("#village").remove();
+				$("#villageVotes").remove();
 				$("#play").append(data);
 				$("#chat").html('');
+
+				$.each(list, function(index, name){
+					$("#mafiaVotes").append("<div class='vote'> <div data-username=" + name + ">" + name + "</div><div></div></div>");
+				});
 				choiceChange(false, killList);
 			}
 		}
@@ -152,6 +166,7 @@ var listOfPlayers = [];
 		var isDay = nextRoundData.day;
 		var side = nextRoundData.side;
 		var killList = nextRoundData.list;
+		var list = nextRoundData.voteList;
 		var report = nextRoundData.report;
 		console.log("H E      ZXXXXXXXXX HE FDSDSAD{PA {");
 		console.log(nextRoundData);
@@ -164,7 +179,7 @@ var listOfPlayers = [];
 				method: "GET",
 				success: function(data){
 					console.log("SUCCESSS");
-					 nextRound(data, isDay, side, killList, report);
+					 nextRound(data, isDay, side, killList, list, report);
 				},
 				fail: function(){
 
@@ -178,7 +193,7 @@ var listOfPlayers = [];
 				method: "GET",
 				success: function(data){
 					console.log("SUCCESSS");
-					nextRound(data, isDay, side, killList);
+					nextRound(data, isDay, side, killList, list);
 				},
 				fail: function(){
 
@@ -229,6 +244,18 @@ var listOfPlayers = [];
 		$("#" + player).remove();
 		$("#dead").append(player);
 		$("#chat").append("Player " + player + " has been tragically killed");
+	});
+
+	socket.on("kill list vote", function(data){
+		var username = data.username;
+		var vote = data.vote;
+		var day = data.day;
+
+		if(day){
+			//$("#villageVotes").
+		}else{
+
+		}
 	});
 
 	socket.on('you are dead', function(data){

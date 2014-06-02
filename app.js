@@ -412,6 +412,16 @@ io.sockets.on('connection', function (socket) {
                 }
             }
 
+            if(day){                   
+                io.sockets.in((socket.room).toString()).emit('kill list vote', {username: socket.username, vote: vote, day: day});
+            }else{
+                io.sockets.clients((socket.room).toString()).forEach(function(s, i) {
+                    var side = games[room].players[s.username].side;
+                    if(side === 'mafia')
+                        s.emit('kill list vote', {username: socket.username, vote: vote, day: day});
+                });
+            }
+
             console.log("ITS " + day + " number of allowed votes " + count);
             console.log("TEST ");
             console.log(games[socket.room].players);
@@ -553,7 +563,9 @@ io.sockets.on('connection', function (socket) {
         }
         var day = games[socket.room].day;
         var killList = [];
+        var village = [];
         var mafiaList = [];
+        var mafia = [];
         var villageCount = 0;
         var mafiaCount = 0;
         var goodReportOn = Math.floor((Math.random()*7));
@@ -568,11 +580,14 @@ io.sockets.on('connection', function (socket) {
             var side = games[room].players[s.username].side;
             var name = games[room].players[s.username].name;
             if(s.alive){
-                if(side === 'mafia')
+                if(side === 'mafia'){
                     mafiaCount++;
+                    mafia.push(s.username);
+                }
                 else if(side === 'village'){
                     villageCount++;
                 }
+                village.push(s.username);
             }
 
             //Good report
@@ -605,12 +620,12 @@ io.sockets.on('connection', function (socket) {
                         var userIndex = killList.indexOf(s.username);
                         killList.splice(userIndex, 1);
                         if(name === 'cop'){
-                            s.emit('next round', {day: day, side: side, list: killList, report: goodReport});
+                            s.emit('next round', {day: day, side: side, list: killList, report: goodReport, voteList: village});
                         }
                         else if(name === 'bad cop'){
-                            s.emit('next round', {day: day, side: side, list: killList, report: badReport});
+                            s.emit('next round', {day: day, side: side, list: killList, report: badReport, voteList: village});
                         }else{
-                            s.emit('next round', {day: day, side: side, list: killList});
+                            s.emit('next round', {day: day, side: side, list: killList, voteList: village});
                         }
                         killList.splice(userIndex, 0, s.username);
                     }else{
@@ -627,7 +642,7 @@ io.sockets.on('connection', function (socket) {
                     var side = games[room].players[s.username].side;
                     if(s.alive){
                         if(side === 'mafia')
-                            s.emit('next round', {day: day, side: side, list: mafiaList});
+                            s.emit('next round', {day: day, side: side, list: mafiaList, voteList: mafia});
                     }
                 });
             } 
@@ -717,6 +732,7 @@ io.sockets.on('connection', function (socket) {
     */
     var startGame = function(room){
         var killList = [];
+        var list = [];
         games[socket.room].isStarting = false;
         games[socket.room].started = true;
         //Pseudo-random sort
@@ -732,12 +748,15 @@ io.sockets.on('connection', function (socket) {
             //emit list of players to ensure there is no error {set[i], list}
             if(set[i].side === 'village')
                 killList.push(s.username);
+            else{
+                list.push(s.username);
+            }
         });
 
         io.sockets.clients(room.toString()).forEach(function(s, i) {
             var side = games[room].players[s.username].side;
             if(side === 'mafia')
-                s.emit('start game', {side: side, list: killList});
+                s.emit('start game', {side: side, list: killList, voteList: list});
             else if(side === 'village')
                 s.emit('start game', {side: side, list: []});
         });
