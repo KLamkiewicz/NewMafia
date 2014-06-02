@@ -195,7 +195,7 @@ io.set('authorization', passportSocketIo.authorize({
 var characters = {
     village : {
         villager: {
-            name: "villager",
+            name: "simple villager",
             about: "A simple villager",
             side: "village"
         },
@@ -203,11 +203,16 @@ var characters = {
             name: "cop",
             about: "Gets the reports",
             side: "village"
+        },
+        badCop: {
+            name: "bad cop",
+            about: "His reports aren't any good",
+            side: "village"
         }
     },
     mafia : {
         mafia: {
-            name: "mafia",
+            name: "mafia member",
             about: "Kills villagers at night",
             side: "mafia"
         }
@@ -216,7 +221,7 @@ var characters = {
 
 //Predefined game set from the characters object
 var set = [characters.village.villager, characters.mafia.mafia, characters.village.cop, characters.mafia.mafia, 
-characters.village.villager, characters.village.villager, characters.village.cop];
+characters.village.villager, characters.village.villager, characters.village.badCop];
 
 var PLAYERS_LENGTH = set.length;
 
@@ -551,10 +556,17 @@ io.sockets.on('connection', function (socket) {
         var mafiaList = [];
         var villageCount = 0;
         var mafiaCount = 0;
+        var goodReportOn = Math.floor((Math.random()*7));
+        var goodReport = "";
+        var badReportOn = Math.floor((Math.random()*7));
+        var randomSide = Math.floor((Math.random()*7));
+        var badReport = "";
+
         console.log("ITS CHANGING TO " + games[socket.room].day);
 
         io.sockets.clients(room.toString()).forEach(function(s, i) {
             var side = games[room].players[s.username].side;
+            var name = games[room].players[s.username].name;
             if(s.alive){
                 if(side === 'mafia')
                     mafiaCount++;
@@ -562,6 +574,17 @@ io.sockets.on('connection', function (socket) {
                     villageCount++;
                 }
             }
+
+            //Good report
+            if(i === goodReportOn){
+                goodReport = "Report indicates that " + s.username + " is a " + name;
+            }
+
+            //Bad report
+            if(i === badReportOn){
+                badReport = "Report indicates that " + s.username + " is a " + set[randomSide].name;
+            }
+
         });
 
         //Check if there is more mafia than villagers or if all mafia is dead
@@ -575,11 +598,20 @@ io.sockets.on('connection', function (socket) {
             //Remove username from the list that is going to be sent to him and add him back after emit
             io.sockets.clients(room.toString()).forEach(function(s, i) {
                 var side = games[room].players[s.username].side;
+                var name = games[room].players[s.username].name;
+
                 if(s.alive){
                     if(day){
                         var userIndex = killList.indexOf(s.username);
                         killList.splice(userIndex, 1);
-                        s.emit('next round', {day: day, side: side, list: killList});
+                        if(name === 'cop'){
+                            s.emit('next round', {day: day, side: side, list: killList, report: goodReport});
+                        }
+                        else if(name === 'bad cop'){
+                            s.emit('next round', {day: day, side: side, list: killList, report: badReport});
+                        }else{
+                            s.emit('next round', {day: day, side: side, list: killList});
+                        }
                         killList.splice(userIndex, 0, s.username);
                     }else{
                         if(side === 'village'){

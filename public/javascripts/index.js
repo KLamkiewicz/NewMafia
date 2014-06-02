@@ -1,5 +1,7 @@
 $(function(){
 var socket = io.connect('http://' + location.host);
+var dead = false;
+var report = "";
 
 	//Can remove add user' and add him from auth on connect
 	socket.on("connect", function(){
@@ -63,6 +65,9 @@ var listOfPlayers = [];
 		});
 	});
 
+	socket.on('report', function(report){
+		$("#chat").append(report);
+	});
 
 	/*
 		Game start modifies the view of the client based on allegiance,
@@ -83,8 +88,9 @@ var listOfPlayers = [];
 		}
 	};
 
-	var nextRound = function(data, isDay, side, killList){
-
+	var nextRound = function(data, isDay, side, killList, report){
+		console.log("GOT REPORT " + report);
+		
 		if(isDay){
 			if($("#play").length<1){
 				$("#game").append(data);
@@ -93,6 +99,8 @@ var listOfPlayers = [];
 				$("#game").append(data);
 			}
 			$("#chat").html('');
+			if(report)
+				$("#chat").append(report);
 			sendMessageClick();
 			choiceChange(true, killList);
 
@@ -144,6 +152,7 @@ var listOfPlayers = [];
 		var isDay = nextRoundData.day;
 		var side = nextRoundData.side;
 		var killList = nextRoundData.list;
+		var report = nextRoundData.report;
 		console.log("H E      ZXXXXXXXXX HE FDSDSAD{PA {");
 		console.log(nextRoundData);
 
@@ -155,7 +164,7 @@ var listOfPlayers = [];
 				method: "GET",
 				success: function(data){
 					console.log("SUCCESSS");
-					 nextRound(data, isDay, side, killList);
+					 nextRound(data, isDay, side, killList, report);
 				},
 				fail: function(){
 
@@ -222,7 +231,6 @@ var listOfPlayers = [];
 		$("#chat").append("Player " + player + " has been tragically killed");
 	});
 
-var dead = false;
 	socket.on('you are dead', function(data){
 		dead = true;
 		$("#play").remove();
