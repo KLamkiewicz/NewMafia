@@ -12,7 +12,10 @@ module.exports = function(grunt) {
                 yuicompress: true
             },
             files: {
-                "public/stylesheets/style.css": "public/stylesheets/style.less"
+                "public/stylesheets/game.css": "public/stylesheets/game.less",
+				"public/stylesheets/login.css": "public/stylesheets/login.less",
+				"public/stylesheets/register.css": "public/stylesheets/register.less",
+				"public/stylesheets/index.css": "public/stylesheets/index.less"
             }
         }
     },

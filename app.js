@@ -220,8 +220,9 @@ var characters = {
 };
 
 //Predefined game set from the characters object
-var set = [characters.village.villager, characters.mafia.mafia, characters.village.cop, characters.mafia.mafia, 
-characters.village.villager, characters.village.villager, characters.village.badCop];
+var set = [characters.village.villager, characters.mafia.mafia, characters.village.cop];
+//, characters.mafia.mafia, 
+//characters.village.villager, characters.village.villager, characters.village.badCop];
 
 var PLAYERS_LENGTH = set.length;
 
@@ -230,7 +231,7 @@ var games = {};
 var roomID = 0;
 var timeOuts = [];
 var daySeconds = 30;
-var nightSeconds = 25;
+var nightSeconds = 25000;
 
 
 io.sockets.on('connection', function (socket) {
@@ -569,10 +570,10 @@ io.sockets.on('connection', function (socket) {
         var mafia = [];
         var villageCount = 0;
         var mafiaCount = 0;
-        var goodReportOn = Math.floor((Math.random()*7));
+        var goodReportOn = Math.floor((Math.random()*PLAYERS_LENGTH));
         var goodReport = "";
-        var badReportOn = Math.floor((Math.random()*7));
-        var randomSide = Math.floor((Math.random()*7));
+        var badReportOn = Math.floor((Math.random()*PLAYERS_LENGTH));
+        var randomSide = Math.floor((Math.random()*PLAYERS_LENGTH));
         var badReport = "";
 
         console.log("ITS CHANGING TO " + games[socket.room].day);

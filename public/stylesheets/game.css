@@ -1,0 +1,40 @@
+body {
+  background-color: red;
+}
+#game {
+  float: left;
+  width: 100%;
+  background-color: green;
+}
+#game #characters {
+  width: 100%;
+  background-color: yellow;
+}
+#game #players {
+  float: left;
+  width: 15%;
+  background-color: pink;
+}
+#game #play #chatWrap {
+  float: left;
+  width: 60%;
+  background-color: white;
+}
+#game #play #chatWrap #chat {
+  height: 70%;
+  overflow-y: auto;
+}
+#play #mafiaVotes {
+  float: right;
+}
+#play #mafia {
+  clear: right;
+  float: right;
+}
+#play #villageVotes {
+  float: right;
+}
+#play #village {
+  clear: right;
+  float: right;
+}

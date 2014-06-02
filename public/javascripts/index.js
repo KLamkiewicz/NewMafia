@@ -2,6 +2,7 @@ $(function(){
 var socket = io.connect('http://' + location.host);
 var dead = false;
 var report = "";
+var chat = $("#chat");
 
 	//Can remove add user' and add him from auth on connect
 	socket.on("connect", function(){
@@ -23,6 +24,12 @@ var report = "";
 	//Message received
 	socket.on("received message", function(username, message){
 		$("#chat").append("<div>" + username + ": " + message + "</div>");
+		//$chat.scrollTop = $chat.scrollHeight;
+		var howMuch = document.getElementById("chat").scrollHeight;
+		//var howMuch = $("#chat").prop('scrollHeight');
+		console.log(howMuch);
+		console.log("test");
+		console.log(chat.scrollTop(howMuch));
 	});
 
 
@@ -37,6 +44,7 @@ var report = "";
 		socket.on("received dead message", function(username, message){
 			console.log("WORKING DEAD MESSAGE");
 			$("#chat").append("<div>" + username + ": " + message + "THIS IS DEAD MESSAGE" +"</div>");
+			$chat.scrollTop = $chat.scrollHeight;
 		});
 	};
 
