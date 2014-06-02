@@ -409,6 +409,23 @@ io.sockets.on('connection', function (socket) {
 
 //Functions
 
+    var count = function(room){
+        var count = 0;
+
+            for(var p in games[room].players){
+                day = games[room].day;
+                if(!games[room].day){
+                    if(games[room].players[p].side === 'mafia' && games[room].players[p].alive){
+                        count++;
+                    }
+                }else{
+                   if(games[room].players[p].alive){
+                        count++;
+                   }     
+                }
+            }
+        return count;
+    };
     
     var theKilling = function(count, isTimeout){
         var votesCasted = 0;
@@ -667,8 +684,15 @@ io.sockets.on('connection', function (socket) {
 
             // }, 60000);
         //Zrobic next round po N czasie, a w nextround w srodku rozpoczac licznik na nowo dla nastepnej rundy
-        games[socket.room].voteTime = setInterval(function(){
-            console.log("Emituj czas, jesli osiagnie 0 next round");
+        games[socket.room].time = 10;
+        games[socket.room].voteInterval = setInterval(function(){
+            games[socket.room].time--;
+            if(games[socket.room].time <=0){
+                games[socket.room].time = 10;
+                theKilling(count(socket.room), true);
+                clearInterval(games[socket.room].voteInterval);
+            }
+            io.sockets.in((socket.room).toString()).emit('vote time', games[socket.room].time);
         }, 1000);
     };
 });

@@ -238,4 +238,8 @@ var listOfPlayers = [];
 		});
 	});
 
+	socket.on('vote time', function(time){
+		console.log(time);
+	});
+
 });
