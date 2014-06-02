@@ -267,7 +267,8 @@ io.sockets.on('connection', function (socket) {
 
                 //Notify players in the room a player has disconnected
                 socket.leave((socket.room).toString());
-                io.sockets.in((socket.room).toString()).emit("player disconnected", {name: socket.username, alive: socket.alive} ); 
+                if(games[socket.room].started)
+                    io.sockets.in((socket.room).toString()).emit("player disconnected", {name: socket.username, alive: socket.alive});
                 console.log(socket.username + " disconnected from room " + socket.room);
                 console.log("Number of players in room number " + socket.room + " : " + (nP-1));
 

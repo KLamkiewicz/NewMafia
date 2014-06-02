@@ -246,16 +246,11 @@ var listOfPlayers = [];
 		$("#chat").append("Player " + player + " has been tragically killed");
 	});
 
+
 	socket.on("kill list vote", function(data){
 		var username = data.username;
 		var vote = data.vote;
-		var day = data.day;
-
-		if(day){
-			//$("#villageVotes").
-		}else{
-
-		}
+		$("div [data-username="+username+"]").next().html(vote);
 	});
 
 	socket.on('you are dead', function(data){
