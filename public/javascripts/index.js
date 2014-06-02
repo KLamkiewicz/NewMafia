@@ -222,7 +222,9 @@ var listOfPlayers = [];
 		$("#chat").append("Player " + player + " has been tragically killed");
 	});
 
+var dead = false;
 	socket.on('you are dead', function(data){
+		dead = true;
 		$("#play").remove();
 		$.ajax({
 			method: "get",
@@ -240,6 +242,31 @@ var listOfPlayers = [];
 
 	socket.on('vote time', function(time){
 		console.log(time);
+		console.log(dead);
+	});
+
+	socket.on('winner', function(winner){
+		console.log(winner + " HAS WON THE GAME");
+		if(dead){
+			$("#chat").html("");
+			$("#chat").append(winner + " has won the game");
+		}
+		else{
+			$("#play").remove();
+			$.ajax({
+				method: "get",
+				url: '/spectator',
+				success: function(html){
+					$("#game").append(html);
+					$("#chat").append(winner + " has won the game");
+					//$("ch")
+					enableDeadSocket();
+				},
+				fail: function(){
+
+				}
+			});
+		}
 	});
 
 });

@@ -215,8 +215,8 @@ var characters = {
 };
 
 //Predefined game set from the characters object
-var set = [characters.village.villager, characters.mafia.mafia, characters.village.cop, characters.mafia.mafia];
-//,characters.village.villager, characters.village.villager, characters.village.cop];
+var set = [characters.village.villager, characters.mafia.mafia, characters.village.cop, characters.mafia.mafia, 
+characters.village.villager, characters.village.villager, characters.village.cop];
 
 var PLAYERS_LENGTH = set.length;
 
@@ -224,6 +224,8 @@ var PLAYERS_LENGTH = set.length;
 var games = {};
 var roomID = 0;
 var timeOuts = [];
+var daySeconds = 30;
+var nightSeconds = 25;
 
 
 io.sockets.on('connection', function (socket) {
@@ -274,7 +276,11 @@ io.sockets.on('connection', function (socket) {
                 }
 
                 if(games[socket.room].started && socket.alive){
-                    nextRound((socket.room).toString());
+                    //nextRound((socket.room).toString());
+                    clearInterval(games[socket.room].voteInterval); 
+                    games[socket.room].voteInterval = undefined;
+                    if(!games[socket.room].over)
+                        theKilling(0, true);
                 }
 
                 //If this is the last player in the room, remove the room from the game list
@@ -286,6 +292,7 @@ io.sockets.on('connection', function (socket) {
                     //delete games[socket.room].players[loginName];
                     socket.alive = false;
                     games[socket.room].players[loginName].alive = false;
+
                 }
             }
         });
@@ -299,7 +306,7 @@ io.sockets.on('connection', function (socket) {
         socket.on("dead message", function(message){
             var room = socket.room;
             io.sockets.clients(room.toString()).forEach(function(s, i) {
-                if(!s.alive){
+                if(!s.alive || games[room].over){
                     s.emit("received dead message", socket.username, message);
                 }
             });
@@ -506,7 +513,7 @@ io.sockets.on('connection', function (socket) {
                     console.log(n);
                     if((topVotes[n] / count) > 0.5){
                         console.log("Majority");
-                        io.sockets.clients(room.toString()).forEach(function(s, i) {
+                        io.sockets.clients((socket.room).toString()).forEach(function(s, i) {
                             if(s.username === n ){
                                 games[s.room].players[s.username].alive = false;
                                 s.alive = false;
@@ -559,7 +566,7 @@ io.sockets.on('connection', function (socket) {
 
         //Check if there is more mafia than villagers or if all mafia is dead
         //if(mafiaCount>0 && mafiaCount<villageCount)
-        if(true){
+        if(mafiaCount > 0 && mafiaCount < villageCount){
             io.sockets.clients(room.toString()).forEach(function(s, i) {
                 if(s.alive)
                     killList.push(s.username);
@@ -593,11 +600,11 @@ io.sockets.on('connection', function (socket) {
                 });
             } 
 
-        games[socket.room].time = 10;
+        games[socket.room].time = day?daySeconds:nightSeconds;
         games[socket.room].voteInterval = setInterval(function(){
             games[socket.room].time--;
             if(games[socket.room].time <=0){
-                games[socket.room].time = 10;
+                games[socket.room].time = day?nightSeconds:daySeconds;
                 theKilling(count(socket.room), true);
             }
             io.sockets.in((socket.room).toString()).emit('vote time', games[socket.room].time);
@@ -605,16 +612,15 @@ io.sockets.on('connection', function (socket) {
         console.log("NEW INTERVAL ");
         console.log(games[socket.room].voteInterval);
 
-
-        // else if(mafiaCount === 0){
-        //     io.sockets.in(room).emit("winner", "village");
-        // }
-        }else{
-            io.sockets.in(room).emit('');
         }
-        //else if(mafiaCount >= villageCount){
-        //  io.sockets.in(room).emit("winner", "mafia");
-        //}
+        else if(mafiaCount === 0){
+            io.sockets.in(room).emit("winner", "village");
+            games[socket.room].over = true;
+        }
+        else if(mafiaCount >= villageCount){
+            io.sockets.in(room).emit("winner", "mafia");
+            games[socket.room].over = true;
+        }
     };
 
     var clearVotes = function(){
@@ -707,11 +713,10 @@ io.sockets.on('connection', function (socket) {
 
             // }, 60000);
         //Zrobic next round po N czasie, a w nextround w srodku rozpoczac licznik na nowo dla nastepnej rundy
-        games[socket.room].time = 10;
+        games[socket.room].time = nightSeconds;
         games[socket.room].voteInterval = setInterval(function(){
             games[socket.room].time--;
             if(games[socket.room].time <=0){
-                games[socket.room].time = 10;
                 theKilling(count(socket.room), true);
             }
             io.sockets.in((socket.room).toString()).emit('vote time', games[socket.room].time);
