@@ -327,7 +327,8 @@ var listOfPlayers = [];
 	});
 
 	socket.on("welcome", function(message){
-		$("#chat").append('<div class="msg">' + message + '</div>' );
+		$("#chat").append('<div class="alert alert-success msg">' + message + '</div>' );
+		$("#chat").append('<div class="alert alert-success msg">' + message + '</div>' );
 	});
 
 	socket.on("game stopped", function(message){

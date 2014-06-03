@@ -3,7 +3,9 @@
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="jquery/dist/jquery.min.js"></script>
 	<script src="/javascripts/index.js"></script>
+	<link rel='stylesheet' href='bootstrap.css'/>
 	<link rel='stylesheet' href='/stylesheets/game.css'/>
+
 </head>
 <body>
 
@@ -18,17 +20,23 @@
 		<div id="characters">
 			Characters
 		</div>
-		<div id="players">
-			<div id="alive">
-				<div id="playersText">
-					Players
+		<div id="players" >
+
+			<div class="panel panel-success" id="alivePanel">
+				<div class="panel-heading" id="playersText">Players</div>
+				<div class="panel-body" id="alive">
+				    
 				</div>
 			</div>
-			<div id="dead">
-				<div id="deadText">
-					Deceased
+
+
+			<div class="panel panel-danger" id="deadPanel">
+				<div class="panel-heading" id="deadText">Dead</div>
+				<div class="panel-body" id="dead">
+				    
 				</div>
 			</div>
+
 		</div>
 		<div id="play">
 			<div id="chatWrap">
@@ -37,12 +45,11 @@
 
 				<div id="message">
 					<form>
-					    <div>
-					        <input type="text" id="chatMessage"/>
-					    </div>
-					    <div>
-					        <input type="submit" value="Send" id="sendMessage"/>
-					    </div>
+					    
+					        <input type="text" id="chatMessage" class="form-control"/>
+					    
+					        <input type="submit" value="Send" id="sendMessage" class="btn btn-default" />
+					   
 					</form>
 				</div>
 			</div>

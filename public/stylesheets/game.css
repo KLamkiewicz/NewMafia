@@ -1,5 +1,14 @@
-body {
-  background-color: red;
+#linkGlowna {
+  float: left;
+  padding: 10px 10px 10px 10px;
+}
+#linkZasady {
+  float: left;
+  padding: 10px 10px 10px 10px;
+}
+#linkLog {
+  float: right;
+  padding: 10px 10px 10px 10px;
 }
 #gameTimer {
   float: right;
@@ -8,7 +17,7 @@ body {
   float: left;
   width: 100%;
   height: 90%;
-  background-color: green;
+  background-color: #e5e5e5;
 }
 #game #characters {
   width: 100%;
@@ -16,23 +25,34 @@ body {
 }
 #game #players {
   float: left;
+  margin: 5px 5px 5px 5px;
   width: 15%;
-  background-color: pink;
 }
 #game #players #alive {
-  background-color: green;
+  margin-top: 10px;
 }
 #game #players #dead {
-  background-color: yellow;
+  margin-top: 10px;
 }
 #game #play #chatWrap {
   float: left;
   width: 60%;
   background-color: white;
+  margin: 10px 10px 10px 10px;
 }
 #game #play #chatWrap #chat {
   height: 70%;
   overflow-y: auto;
+  padding: 15px 15px 15px 15px;
+}
+#game #play #chatWrap #message {
+  margin-top: 15px;
+}
+#game #play #chatWrap #message #chatMessage {
+  width: 150px;
+  float: left;
+  margin-left: 15px;
+  margin-right: 15px;
 }
 #game #play #villageDiv {
   width: 15%;
@@ -50,4 +70,10 @@ body {
 }
 .servermsg {
   background-color: yellow;
+}
+.alert-success {
+  margin-bottom: 5px;
+}
+.panel-body {
+  padding: 5px 5px 8px 10px;
 }
