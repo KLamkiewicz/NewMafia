@@ -19,6 +19,7 @@ var sessionKey = 'connect.sid';
 var redis = require("redis");
 var client = redis.createClient(10626, "pub-redis-10626.eu-west-1-1.1.ec2.garantiadata.com");
 client.auth("stolek");
+
 //var client = redis.createClient();
 
 client.on("error", function (err) {
@@ -83,6 +84,7 @@ app.use(express.session({
     key: sessionKey,
     secret: sessionSecret
 }));
+
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(app.router);
@@ -192,6 +194,7 @@ io.set('authorization', passportSocketIo.authorize({
 }));
 
 
+
 //Available characters to choose from
 var characters = {
     village : {
@@ -221,9 +224,8 @@ var characters = {
 };
 
 //Predefined game set from the characters object
-var set = [characters.village.villager, characters.mafia.mafia, characters.village.cop];
-//, characters.mafia.mafia, 
-//characters.village.villager, characters.village.villager, characters.village.badCop];
+var set = [characters.village.villager, characters.mafia.mafia, characters.village.cop, characters.mafia.mafia, 
+characters.village.villager, characters.village.villager, characters.village.badCop];
 
 var PLAYERS_LENGTH = set.length;
 
@@ -271,6 +273,9 @@ io.sockets.on('connection', function (socket) {
                 socket.leave((socket.room).toString());
                 if(games[socket.room].started)
                     io.sockets.in((socket.room).toString()).emit("player disconnected", {name: socket.username, alive: socket.alive});
+                else{
+                    io.sockets.in((socket.room).toString()).emit("player left", {name: socket.username});
+                }
                 console.log(socket.username + " disconnected from room " + socket.room);
                 console.log("Number of players in room number " + socket.room + " : " + (nP-1));
 
@@ -281,6 +286,7 @@ io.sockets.on('connection', function (socket) {
                     games[socket.room].isStarting = false;
                     clearTimeout(timeOuts[socket.room]);
                     console.log("Game has been stopped in room " + socket.room);
+                    io.sockets.in((socket.room).toString()).emit("game stopped", "Game has been stopped, you need 7 players to start the game");
                 }
 
                 if(games[socket.room].started && socket.alive){
@@ -298,8 +304,12 @@ io.sockets.on('connection', function (socket) {
                     delete games[socket.room];
                 }else{
                     //delete games[socket.room].players[loginName];
-                    socket.alive = false;
-                    games[socket.room].players[loginName].alive = false;
+                    if(games[socket.room].started){
+                        socket.alive = false;
+                        games[socket.room].players[loginName].alive = false;
+                    }else{
+                        delete games[socket.room].players[loginName];
+                    }
 
                 }
             }
@@ -340,29 +350,29 @@ io.sockets.on('connection', function (socket) {
             socket.username = username;
 
             //Iterate over rooms, find room where game is not running, else create new
-            findRoomLoop: for(var room in games){
-                if(games.hasOwnProperty(room)){
-                    // console.log(games[room].started);
-                    // console.log(!games[room].isStarting && !games[room].started);
-                    if(!games[room].isStarting && !games[room].started && !joined){
+        findRoomLoop: for(var room in games){
+                            if(games.hasOwnProperty(room)){
+                                // console.log(games[room].started);
+                                // console.log(!games[room].isStarting && !games[room].started);
+                                if(!games[room].isStarting && !games[room].started && !joined){
 
-                        for(var playa in games[room].players){
-                            if(games[room].players[playa].username === socket.username){
-                                break findRoomLoop;
+                                    for(var playa in games[room].players){
+                                        if(games[room].players[playa].username === socket.username && !games[room].isStarting ){
+                                            break findRoomLoop;
+                                        }
+                                    }
+
+                                    socket.join(room.toString());
+                                    games[room].players[loginName] = {
+                                        username : username,
+                                        alive: true,
+                                        vote : ""
+                                    };
+                                    socket.room = room;
+                                    joined = true;
+                                }
                             }
                         }
-
-                        socket.join(room.toString());
-                        games[room].players[loginName] = {
-                            username : username,
-                            alive: true,
-                            vote : ""
-                        };
-                        socket.room = room;
-                        joined = true;
-                    }
-                }
-            }
 
             //Create new room if all are full
             if(!joined){
@@ -390,6 +400,7 @@ io.sockets.on('connection', function (socket) {
 
             emitListOfPlayers((socket.room).toString());
             console.log("Socket joined room " + socket.room);
+            socket.emit("welcome", "Welcome in room " + socket.room + " " + loginName);
             //console.log("List of rooms ");
             //console.log(io.sockets.manager.roomClients[socket.id]);
 
@@ -732,6 +743,7 @@ io.sockets.on('connection', function (socket) {
                 startGame(socket.room);
             }, 5000);
             console.log("Game will start in 5 seconds in room " + socket.room);
+            io.sockets.in((socket.room).toString()).emit("game will start", "Game will start in 10 seconds");
         }
     };
 

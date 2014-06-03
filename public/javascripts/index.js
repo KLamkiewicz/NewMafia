@@ -1,8 +1,10 @@
 $(function(){
 var socket = io.connect('http://' + location.host);
 var dead = false;
+var gameover = false;
 var report = "";
 var chat = $("#chat");
+var gameWinner = "";
 
 	//Can remove add user' and add him from auth on connect
 	socket.on("connect", function(){
@@ -23,13 +25,11 @@ var chat = $("#chat");
 	sendMessageClick();
 	//Message received
 	socket.on("received message", function(username, message){
-		$("#chat").append("<div>" + username + ": " + message + "</div>");
+		$("#chat").append("<div class='msg'>" + username + ": " + message + "</div>");
 		//$chat.scrollTop = $chat.scrollHeight;
 		var howMuch = document.getElementById("chat").scrollHeight;
 		//var howMuch = $("#chat").prop('scrollHeight');
-		console.log(howMuch);
-		console.log("test");
-		console.log(chat.scrollTop(howMuch));
+		chat.scrollTop(howMuch);
 	});
 
 
@@ -43,8 +43,10 @@ var chat = $("#chat");
 
 		socket.on("received dead message", function(username, message){
 			console.log("WORKING DEAD MESSAGE");
-			$("#chat").append("<div>" + username + ": " + message + "THIS IS DEAD MESSAGE" +"</div>");
-			$chat.scrollTop = $chat.scrollHeight;
+			$("#chat").append("<div class='deadmsg'>" + username + ": " + message +"</div>");
+			var howMuch = document.getElementById("chat").scrollHeight;
+			//var howMuch = $("#chat").prop('scrollHeight');
+			chat.scrollTop(howMuch);
 		});
 	};
 
@@ -92,10 +94,11 @@ var listOfPlayers = [];
 		}
 		else if(role ==='mafia'){
 			//get list of players
+			$("#chat").html('');
 			$("#play").append(html);
 
 			$.each(list, function(index, name){
-				$("#mafiaVotes").append("<div class='vote'> <div data-username=" + name + ">" + name + "</div><div></div></div>");
+				$("#mafiaVotes").append("<div class='vote'> <div data-username=" + name + ">" + name + "</div><span class='voteResult'></span></div>");
 			});
 			choiceChange(false, killList);
 		}
@@ -116,7 +119,7 @@ var listOfPlayers = [];
 				$("#chat").append(report);
 			
 			$.each(list, function(index, name){
-				$("#villageVotes").append("<div class='vote'> <div data-username=" + name + ">" + name + "</div><div></div></div>");
+				$("#villageVotes").append("<div class='vote'> <div data-username=" + name + ">" + name + "</div><span class='voteResult'></span></div>");
 			});
 
 			sendMessageClick();
@@ -131,7 +134,7 @@ var listOfPlayers = [];
 				$("#chat").html('');
 
 				$.each(list, function(index, name){
-					$("#mafiaVotes").append("<div class='vote'> <div data-username=" + name + ">" + name + "</div><div></div></div>");
+					$("#mafiaVotes").append("<div class='vote'> <div data-username=" + name + ">" + name + "</div><span class='voteResult'></span></div>");
 				});
 				choiceChange(false, killList);
 			}
@@ -246,6 +249,13 @@ var listOfPlayers = [];
 		}
 	});
 
+	socket.on("player left", function(player){
+		var name = player.name;
+		var id = listOfPlayers.indexOf(name);
+		listOfPlayers.splice(id, 1);
+		$("#" + name).remove();
+	});
+
 	socket.on("player killed", function(player){
 		var id = listOfPlayers.indexOf(player);
 		listOfPlayers.splice(id, 1);
@@ -263,19 +273,23 @@ var listOfPlayers = [];
 
 	socket.on('you are dead', function(data){
 		dead = true;
-		$("#play").remove();
+		console.log("YOU HAVE BEEN KILLED");
 		$.ajax({
 			method: "get",
 			url: '/spectator',
 			success: function(html){
+				$("#play").remove();
 				$("#game").append(html);
-				//$("ch")
 				enableDeadSocket();
+				if(gameover){
+					$("#chat").append(gameWinner + " has won the game");
+				}
 			},
 			fail: function(){
 
 			}
 		});
+	
 	});
 
 	socket.on('vote time', function(time){
@@ -285,10 +299,12 @@ var listOfPlayers = [];
 	});
 
 	socket.on('winner', function(winner){
+		gameover = true;
 		console.log(winner + " HAS WON THE GAME");
 		if(dead){
+			gameWinner = winner;
 			$("#chat").html("");
-			$("#chat").append(winner + " has won the game");
+			$("#chat").append('<div class="msg">' + winner + " has won the game" + '</div>' );
 		}
 		else{
 			$("#play").remove();
@@ -297,8 +313,7 @@ var listOfPlayers = [];
 				url: '/spectator',
 				success: function(html){
 					$("#game").append(html);
-					$("#chat").append(winner + " has won the game");
-					//$("ch")
+					$("#chat").append('<div class="msg">' + winner + " has won the game" + '</div>' );
 					enableDeadSocket();
 				},
 				fail: function(){
@@ -306,6 +321,18 @@ var listOfPlayers = [];
 				}
 			});
 		}
+	});
+
+	socket.on("welcome", function(message){
+		$("#chat").append('<div class="msg">' + message + '</div>' );
+	});
+
+	socket.on("game stopped", function(message){
+		$("#chat").append('<div class="msg">' + message + '</div>' );
+	});
+
+	socket.on("game will start", function(message){
+		$("#chat").append('<div class="msg">' + message + '</div>' );
 	});
 
 });

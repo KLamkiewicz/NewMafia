@@ -38,3 +38,7 @@ body {
   clear: right;
   float: right;
 }
+.deadmsg {
+  text-color: red;
+  background-color: red;
+}
