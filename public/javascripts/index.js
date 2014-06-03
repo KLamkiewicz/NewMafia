@@ -98,7 +98,7 @@ var listOfPlayers = [];
 			$("#play").append(html);
 
 			$.each(list, function(index, name){
-				$("#mafiaVotes").append("<div class='vote'> <div data-username=" + name + ">" + name + "</div><span class='voteResult'></span></div>");
+				$("#mafiaVotes").append("<div class='vote'> <span class='voteuser' data-username=" + name + ">" + name + ' voted : ' +"</span><span class='voteResult'></span></div>");
 			});
 			choiceChange(false, killList);
 		}
@@ -119,7 +119,7 @@ var listOfPlayers = [];
 				$("#chat").append(report);
 			
 			$.each(list, function(index, name){
-				$("#villageVotes").append("<div class='vote'> <div data-username=" + name + ">" + name + "</div><span class='voteResult'></span></div>");
+				$("#villageVotes").append("<div class='vote'> <span class='voteuser' data-username=" + name + ">" + name + ' voted : ' +"</span><span class='voteResult'></span></div>");
 			});
 
 			sendMessageClick();
@@ -129,12 +129,12 @@ var listOfPlayers = [];
 				$("#play").remove();
 			}else if(side === 'mafia'){
 				$("#village").remove();
-				$("#villageVotes").remove();
+				$("#villageDiv").remove();
 				$("#play").append(data);
 				$("#chat").html('');
 
 				$.each(list, function(index, name){
-					$("#mafiaVotes").append("<div class='vote'> <div data-username=" + name + ">" + name + "</div><span class='voteResult'></span></div>");
+					$("#mafiaVotes").append("<div class='vote'> <span class='voteuser' data-username=" + name + ">" + name + ' voted : ' +"</span><span class='voteResult'></span></div>");
 				});
 				choiceChange(false, killList);
 			}

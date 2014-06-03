@@ -10,22 +10,28 @@
   float: right;
   padding: 10px 10px 10px 10px;
 }
-#gameTimer {
-  float: right;
-}
 #game {
+  margin-top: 30px;
   float: left;
   width: 100%;
   height: 90%;
   background-color: #e5e5e5;
 }
-#game #characters {
+#game #viewPanel {
   width: 100%;
-  background-color: yellow;
+  height: 80px;
+  margin-bottom: 10px;
+}
+#game #viewPanel #characters {
+  float: left;
+}
+#game #viewPanel #time {
+  float: right;
+  font-size: 3em;
 }
 #game #players {
   float: left;
-  margin: 5px 5px 5px 5px;
+  margin: 10px 5px 5px 5px;
   width: 15%;
 }
 #game #players #alive {
@@ -34,9 +40,12 @@
 #game #players #dead {
   margin-top: 10px;
 }
+#game #play {
+  width: 100%;
+}
 #game #play #chatWrap {
   float: left;
-  width: 60%;
+  width: 55%;
   background-color: white;
   margin: 10px 10px 10px 10px;
 }
@@ -55,11 +64,17 @@
   margin-right: 15px;
 }
 #game #play #villageDiv {
-  width: 15%;
-  float: left;
+  width: 22%;
+  float: right;
+  margin: 10px 10px 10px 10px;
 }
 #game #play #mafiaDiv {
-  float: left;
+  width: 22%;
+  float: right;
+  margin: 10px 10px 10px 10px;
+}
+#game #play .vote {
+  width: 100%;
 }
 #game #play .vote .voteResult {
   float: right;
