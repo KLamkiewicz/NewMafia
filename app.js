@@ -17,8 +17,9 @@ var sessionKey = 'connect.sid';
 
 //REDIS
 var redis = require("redis");
-//var client = redis.createClient(10477, "pub-redis-10477.us-east-1-3.3.ec2.garantiadata.com");
-var client = redis.createClient();
+var client = redis.createClient(10626, "pub-redis-10626.eu-west-1-1.1.ec2.garantiadata.com");
+client.auth("stolek");
+//var client = redis.createClient();
 
 client.on("error", function (err) {
     console.log("Error " + err);
@@ -339,11 +340,18 @@ io.sockets.on('connection', function (socket) {
             socket.username = username;
 
             //Iterate over rooms, find room where game is not running, else create new
-            for(var room in games){
+            findRoomLoop: for(var room in games){
                 if(games.hasOwnProperty(room)){
                     // console.log(games[room].started);
                     // console.log(!games[room].isStarting && !games[room].started);
                     if(!games[room].isStarting && !games[room].started && !joined){
+
+                        for(var playa in games[room].players){
+                            if(games[room].players[playa].username === socket.username){
+                                break findRoomLoop;
+                            }
+                        }
+
                         socket.join(room.toString());
                         games[room].players[loginName] = {
                             username : username,
