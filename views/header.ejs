@@ -1,3 +1,21 @@
 <div id="header">
-	HELLO HEADER
+
+	<div id="linkGlowna">
+		<a href="/"> Main page</a>
+	</div>
+
+	<div id="linkZasady">
+		<a href='/rules'> Rules </a>
+	</div>
+
+	<div id="linkLog">
+		<% if(isLogged) {%>
+			<a href="/logout"> Wyloguj </a>
+		<%} %>
+
+		<% if(!isLogged) {%>
+			<a href="/login"> Zaloguj </a>
+		<%} %>
+	</div>
+
 </div>

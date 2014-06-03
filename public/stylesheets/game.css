@@ -34,18 +34,14 @@ body {
   height: 70%;
   overflow-y: auto;
 }
-#play #mafiaVotes {
-  float: right;
+#game #play #villageDiv {
+  width: 15%;
+  float: left;
 }
-#play #mafia {
-  clear: right;
-  float: right;
+#game #play #mafiaDiv {
+  float: left;
 }
-#play #villageVotes {
-  float: right;
-}
-#play #village {
-  clear: right;
+#game #play .vote .voteResult {
   float: right;
 }
 .deadmsg {

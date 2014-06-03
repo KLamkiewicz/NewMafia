@@ -100,7 +100,8 @@ app.get('/spectator', index.spectator);
 app.get('/game', isAuthenticated, function(req, res){
     //res.sendfile(__dirname + '/public/index.html');
     //console.log(req.user.username);
-    res.render('game', {name : req.user.username});
+    var logged = req.user?true:false;
+    res.render('game', {name : req.user.username, isLogged: logged});
 });
 
 app.post('/login',
@@ -117,24 +118,32 @@ app.post('/login',
 
 //isLoggedIn,
 app.get('/login', isLoggedIn, function(req, res){
-    res.render('login');
+    var logged = req.user?true:false;
+    res.render('login', {isLogged: logged});
+});
+
+app.get('/logout', function (req, res) {
+    req.logout();
+    res.redirect('/');
 });
 
 app.get('/register',isLoggedIn, function(req, res){
-    res.render('register');
+    var logged = req.user?true:false;
+    res.render('register', {isLogged: logged});
 });
 
 app.get('/', function(req, res){
-    var html = "Hello";
-    if(!req.user)
-        html = '<a href="/login"> Zaloguj sie</a> ';
-    else{
-        html = '<a href="/game"> Zagraj</a>';
-        //html +=
-    }
     console.log(req.session.game);
-    res.send(html);
+    //res.send(html);
+    var logged = req.user?true:false;
+    res.render('index', {isLogged: logged});
+
 }); 
+
+app.get('/rules', function(req, res){
+    var logged = req.user?true:false;
+    res.render('rules', {isLogged: logged});
+});
 
 app.post('/register',
     function (req, res) {
@@ -233,7 +242,7 @@ var PLAYERS_LENGTH = set.length;
 var games = {};
 var roomID = 0;
 var timeOuts = [];
-var daySeconds = 30;
+var daySeconds = 30000;
 var nightSeconds = 25000;
 
 
@@ -314,12 +323,14 @@ io.sockets.on('connection', function (socket) {
                 }
             }
         });
+
  
         //Message socket
         socket.on("send message", function(message){
             io.sockets.in((socket.room).toString()).emit("received message", socket.username, message);
             console.log(games);
         });
+
 
         socket.on("dead message", function(message){
             var room = socket.room;
@@ -329,6 +340,7 @@ io.sockets.on('connection', function (socket) {
                 }
             });
         });
+
 
         //Get list of players upon joining the room, wait for the game screen to be prepared
         socket.on("ready for list", function(){
@@ -350,29 +362,29 @@ io.sockets.on('connection', function (socket) {
             socket.username = username;
 
             //Iterate over rooms, find room where game is not running, else create new
-        findRoomLoop: for(var room in games){
-                            if(games.hasOwnProperty(room)){
-                                // console.log(games[room].started);
-                                // console.log(!games[room].isStarting && !games[room].started);
-                                if(!games[room].isStarting && !games[room].started && !joined){
+            findRoomLoop: for(var room in games){
+                                if(games.hasOwnProperty(room)){
+                                    // console.log(games[room].started);
+                                    // console.log(!games[room].isStarting && !games[room].started);
+                                    if(!games[room].isStarting && !games[room].started && !joined){
 
-                                    for(var playa in games[room].players){
-                                        if(games[room].players[playa].username === socket.username && !games[room].isStarting ){
-                                            break findRoomLoop;
+                                        for(var playa in games[room].players){
+                                            if(games[room].players[playa].username === socket.username && !games[room].isStarting ){
+                                                break findRoomLoop;
+                                            }
                                         }
-                                    }
 
-                                    socket.join(room.toString());
-                                    games[room].players[loginName] = {
-                                        username : username,
-                                        alive: true,
-                                        vote : ""
-                                    };
-                                    socket.room = room;
-                                    joined = true;
+                                        socket.join(room.toString());
+                                        games[room].players[loginName] = {
+                                            username : username,
+                                            alive: true,
+                                            vote : ""
+                                        };
+                                        socket.room = room;
+                                        joined = true;
+                                    }
                                 }
                             }
-                        }
 
             //Create new room if all are full
             if(!joined){
@@ -470,6 +482,7 @@ io.sockets.on('connection', function (socket) {
         return count;
     };
     
+
     var theKilling = function(count, isTimeout){
         var votesCasted = 0;
         var voteArray = [];
@@ -577,11 +590,13 @@ io.sockets.on('connection', function (socket) {
 
 
     var nextRound = function(room){
+
         if(games[socket.room].day){
             games[socket.room].day = false;
         }else{
             games[socket.room].day = true;
         }
+
         var day = games[socket.room].day;
         var killList = [];
         var village = [];
@@ -633,6 +648,7 @@ io.sockets.on('connection', function (socket) {
 
             //Remove username from the list that is going to be sent to him and add him back after emit
             io.sockets.clients(room.toString()).forEach(function(s, i) {
+
                 var side = games[room].players[s.username].side;
                 var name = games[room].players[s.username].name;
 
@@ -656,6 +672,7 @@ io.sockets.on('connection', function (socket) {
                         }
                     }
                 }
+
             });  
 
             if(!day){
@@ -691,6 +708,7 @@ io.sockets.on('connection', function (socket) {
         }
     };
 
+
     var clearVotes = function(){
         for(var room in games){
             if(games.hasOwnProperty(room)){
@@ -710,6 +728,7 @@ io.sockets.on('connection', function (socket) {
         in the room updating all of the players "users" list
     */
     var emitListOfPlayers = function(socketRoom){
+
         //Send the joining client the list of players
         socket.emit("on join list players", function(){
             var nicknames = [];
@@ -726,6 +745,7 @@ io.sockets.on('connection', function (socket) {
             console.log(nicknames);
                 return nicknames;
         }());
+
     };
 
     /*
@@ -747,12 +767,14 @@ io.sockets.on('connection', function (socket) {
         }
     };
 
+
     /*
         Start the game, game is no longer in starting state
         Randomly sort the set of available roles and then
         assign them to the players
     */
     var startGame = function(room){
+
         var killList = [];
         var list = [];
         games[socket.room].isStarting = false;
@@ -785,7 +807,7 @@ io.sockets.on('connection', function (socket) {
             // timeOuts[socket.room] = setTimeout(function(){
 
             // }, 60000);
-        //Zrobic next round po N czasie, a w nextround w srodku rozpoczac licznik na nowo dla nastepnej rundy
+
         games[socket.room].time = nightSeconds;
         games[socket.room].voteInterval = setInterval(function(){
             games[socket.room].time--;
@@ -795,4 +817,5 @@ io.sockets.on('connection', function (socket) {
             io.sockets.in((socket.room).toString()).emit('vote time', games[socket.room].time);
         }, 1000);
     };
+
 });

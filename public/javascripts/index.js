@@ -270,6 +270,7 @@ var listOfPlayers = [];
 	socket.on("kill list vote", function(data){
 		var username = data.username;
 		var vote = data.vote;
+		//$("div [data-username="+username+"]").next().html('<span class="voteResult">' + vote + '</span>');
 		$("div [data-username="+username+"]").next().html(vote);
 	});
 

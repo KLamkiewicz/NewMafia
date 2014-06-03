@@ -3,10 +3,21 @@
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="jquery/dist/jquery.min.js"></script>
 	<script src="/javascripts/index.js"></script>
+	<link rel='stylesheet' href='/stylesheets/index.css' />
 </head>
 <body>
+<% include header.ejs %> 
 
+	<% if(isLogged) {%>
+		YOU ARE LOGGED IN
+		<a href="/game"> Zagraj</a>
+		<a href="/logout"> Wyloguj </a>
+	<%} %>
 
+	<% if(!isLogged) {%>
+		YOU ARE not LOGGED IN, LOG IN
+		<a href="/login"> Zaloguj sie</a>
+	<%} %>
 
 </body>
 </html>
