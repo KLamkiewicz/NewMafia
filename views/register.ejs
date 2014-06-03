@@ -7,6 +7,7 @@
   <script src="jquery/dist/jquery.min.js"></script>
   <script src="js/main.js"></script>
   <link rel="stylesheet" href="stylesheets/index.css">
+    <link rel='stylesheet' href='bootstrap.css'/>
    <title>Document</title>
  </head>
  <body>
@@ -14,12 +15,12 @@
 <% include header.ejs %> 
 
   <div id="registerForm">
+    <div id="registerNameText">Register</div>
     <form action="/register" method="post">
-    <div><label>Użytkownik:</label>
-    <input type="text" name="username"/><br/></div>
-    <div><label>Hasło:</label>
-    <input type="password" name="password"/></div>
-    <div><input type="submit" value="Register"/></div></form>
+    <div><label>Username:</label> <input type="text" name="username" class="form-control"/><br/></div>
+    <div><label>Password:</label>
+    <input type="password" name="password" class="form-control"/></div>
+    <div><input type="submit" value="Register" class="btn btn-default" id="registerButton"/></div></form>
   </div>
 
 </body>

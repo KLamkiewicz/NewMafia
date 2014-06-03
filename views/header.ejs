@@ -1,21 +1,22 @@
-<div id="header" class="container">
+<div id="header" class="navbar navbar-default" role="navigation">
+
 
 	<div id="linkGlowna">
-		<button type="button" class="btn btn-default" href="/">Main page</button>
+		<a class="navbar-brand" href="/">Main page</a>
 	</div>
 
 	<div id="linkZasady">
-		<a href='/rules'> Rules </a>
+		<a class="navbar-brand" href="/">Rules</a>
 	</div>
 
 	<div id="linkLog">
 		<% if(isLogged) {%>
-			<a href="/logout"> Wyloguj </a>
+			<a class="navbar-brand" href="/logout">Logout</a>
 		<%} %>
 
 		<% if(!isLogged) {%>
-			<a href="/login"> Zaloguj </a>
-
+			<a class="navbar-brand" href="/login">Login</a>
+			<a class="navbar-brand" href="/register">Register</a>
 		<%} %>
 
 	</div>

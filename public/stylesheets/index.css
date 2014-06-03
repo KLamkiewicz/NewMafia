@@ -1,0 +1,64 @@
+#header {
+  width: 100%;
+  height: 80px;
+  margin: auto;
+}
+#Mafia {
+  float: left;
+  padding: 10px 10px 10px 10px;
+}
+#linkGlowna {
+  float: left;
+  padding: 10px 10px 10px 10px;
+}
+#linkZasady {
+  float: left;
+  padding: 10px 10px 10px 10px;
+}
+#linkLog {
+  float: right;
+  padding: 10px 10px 10px 10px;
+}
+#welcome {
+  width: 30%;
+  height: 10%;
+  margin-top: 10%;
+  margin-left: auto ;
+  margin-right: auto ;
+}
+#welcome a {
+  width: 100%;
+  height: 100%;
+}
+#registerForm {
+  width: 30%;
+  height: 10%;
+  margin-top: 10%;
+  margin-left: auto ;
+  margin-right: auto ;
+}
+#registerForm #registerNameText {
+  font-size: 3em;
+}
+#registerForm #registerButton {
+  margin-top: 15px;
+}
+#registerForm input {
+  float: right;
+}
+#loginForm {
+  width: 30%;
+  height: 10%;
+  margin-top: 10%;
+  margin-left: auto ;
+  margin-right: auto ;
+}
+#loginForm #loginNameText {
+  font-size: 3em;
+}
+#loginForm #loginButton {
+  margin-top: 15px;
+}
+#loginForm input {
+  float: right;
+}

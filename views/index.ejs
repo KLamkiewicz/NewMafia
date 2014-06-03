@@ -1,26 +1,26 @@
+<!DOCTYPE html>
 <html>
 <head>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="jquery/dist/jquery.min.js"></script>
 	<script src="/javascripts/index.js"></script>
 	<link rel='stylesheet' href='/stylesheets/index.css' />
-	<link rel='stylesheet' href='bootstrap.css' />
+	<link rel='stylesheet' href='bootstrap.css'/>
 </head>
 <body>
+
 <% include header.ejs %> 
 
+<div id="welcome" class="jumbotron">
 	<% if(isLogged) {%>
-		YOU ARE LOGGED IN
-		<a href="/game"> Zagraj</a>
-		<a href="/logout"> Wyloguj </a>
+		<a href="/game" class="btn btn-default"> Play</a>
 	<%} %>
 
 	<% if(!isLogged) {%>
-		YOU ARE not LOGGED IN, LOG IN
-		<a href="/login"> Zaloguj sie</a>
+		<a href="/login" class="btn btn-default"> Login to play</a>
 	<%} %>
+</div>
 
-	<button type="button" class="btn btn-default">Default</button>
 
 </body>
 </html>

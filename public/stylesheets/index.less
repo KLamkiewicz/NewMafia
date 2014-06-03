@@ -1,27 +1,86 @@
-// a{  
-//   color:inherit;
-//   text-decoration: none;
-// }
+@padL: 10px 10px 10px 10px;
+@formTextSize: 3em;
 
-// #header{
-// 	width: 100%;
-// 	height: 60px;
-// 	display: inline-block;
-// 	background-color: red;
-// 	border-radius: 15px;
+#header{
+	width: 100%;
+	height: 80px;
+	margin: auto;
+}
 
-// }
 
-// #linkGlowna{
-// 	font: white;
-// 	float:left;
-// }
+#Mafia{
+	float: left;
+	padding: @padL;
+}
 
-// #linkZasady{
-// 	float:left;
-// }
+#linkGlowna{
+	float:left;
+	padding: @padL;
+}
 
-// #linkLog{
-// 	float:right;
-// }
+#linkZasady{
+	float:left;
+	padding: @padL;
+}
 
+#linkLog{
+	float:right;
+	padding: @padL;
+}
+
+#welcome{
+	width: 30%;
+	height: 10%;
+	margin-top: 10%;
+	margin-left: auto ;
+	margin-right: auto ;
+
+	a{
+		width: 100%;
+		height: 100%;
+	}
+}
+
+#registerForm{
+	
+	#registerNameText{
+		font-size: @formTextSize;
+	}
+	
+	#registerButton{
+		margin-top: 15px;
+	}
+	
+	width: 30%;
+	height: 10%;
+	margin-top: 10%;
+	margin-left: auto ;
+	margin-right: auto ;
+
+	input{
+		float: right;
+	}
+
+}
+
+
+#loginForm{
+	
+	#loginNameText{
+		font-size: @formTextSize;
+	}
+	
+	#loginButton{
+		margin-top: 15px;
+	}
+	
+	width: 30%;
+	height: 10%;
+	margin-top: 10%;
+	margin-left: auto ;
+	margin-right: auto ;
+
+	input{
+		float: right;
+	}
+}
