@@ -222,7 +222,7 @@ var listOfPlayers = [];
 		$.each(list, function(name){
 			listOfPlayers.push(list[name]);
 			console.log("Player from list " + list[name]);
-			$("#alive").append("<span id=\"" + list[name] + "\">" + list[name] + "</span>");
+			$("#alive").append("<div class='player' id=\"" + list[name] + "\">" + '<span class="playerSpan">'+ list[name] + '</span>' +"</div>");
 		});
 	});
 
@@ -232,7 +232,8 @@ var listOfPlayers = [];
 	socket.on('new player joined', function(player){
 		console.log("JOINED " + player);
 		listOfPlayers.push(player);
-		$("#alive").append("<span id=\"" + player + "\">" + player + "</span>");
+		$("#alive").append("<div class='player' id=\"" + player + "\">" + '<span class="playerSpan">'+ player + '</span>' +"</div>");
+		$("#chat").append("<div class='servermsg'> Player " + player + " has joined the game </div>");
 	});
 
 	/*
@@ -254,6 +255,7 @@ var listOfPlayers = [];
 		var id = listOfPlayers.indexOf(name);
 		listOfPlayers.splice(id, 1);
 		$("#" + name).remove();
+		$("#chat").append("<div class='servermsg'>Player " + name + " has left the room</div>");
 	});
 
 	socket.on("player killed", function(player){
@@ -261,7 +263,7 @@ var listOfPlayers = [];
 		listOfPlayers.splice(id, 1);
 		$("#" + player).remove();
 		$("#dead").append(player);
-		$("#chat").append("Player " + player + " has been tragically killed");
+		$("#chat").append("<div class='servermsg'>Player " + player + " has been tragically killed</div>");
 	});
 
 
@@ -293,7 +295,7 @@ var listOfPlayers = [];
 	});
 
 	socket.on('vote time', function(time){
-		$("#gameTimer").html(time);
+		$("#time").html("Time left: " + time);
 		console.log(time);
 		console.log(dead);
 	});

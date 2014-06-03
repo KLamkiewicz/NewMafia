@@ -224,8 +224,8 @@ var characters = {
 };
 
 //Predefined game set from the characters object
-var set = [characters.village.villager, characters.mafia.mafia, characters.village.cop, characters.mafia.mafia, 
-characters.village.villager, characters.village.villager, characters.village.badCop];
+var set = [characters.village.villager, characters.mafia.mafia, characters.village.cop];
+//, characters.mafia.mafia, characters.village.villager, characters.village.villager, characters.village.badCop];
 
 var PLAYERS_LENGTH = set.length;
 

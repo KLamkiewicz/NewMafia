@@ -7,7 +7,11 @@
 </head>
 <body>
 
+<% include header.ejs %> 
+
 	<div id="gameTimer">
+		<div id="time">
+		</div>
 	</div>
 		
 	<div id="game">
@@ -16,10 +20,14 @@
 		</div>
 		<div id="players">
 			<div id="alive">
-				Users here
+				<div id="playersText">
+					Players
+				</div>
 			</div>
 			<div id="dead">
-				Dead here
+				<div id="deadText">
+					Deceased
+				</div>
 			</div>
 		</div>
 		<div id="play">
