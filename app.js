@@ -90,6 +90,7 @@ app.use(passport.session());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static("bower_components"));
+app.use(express.static('bower_components/bootstrap/dist/css'));
 
 
 
