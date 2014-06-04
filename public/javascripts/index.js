@@ -7,6 +7,7 @@ var report = "";
 var chat = $("#chat");
 var gameWinner = "";
 var $input;
+var howMuch = 0;
 
 	//Can remove add user' and add him from auth on connect
 	socket.on("connect", function(){
@@ -19,6 +20,11 @@ var $input;
 		theplayername = myName;
 	});
 
+
+	var scrollBot = function(){
+		howMuch = document.getElementById("chat").scrollHeight;
+		chat.scrollTop(howMuch);
+	};
 
 	//Message sent
 	var sendMessageClick = function(){
@@ -39,17 +45,14 @@ var $input;
 				$("#msgmsg").html("");
 			}
 		});
-
-		var howMuch = document.getElementById("chat").scrollHeight;
-		chat.scrollTop(howMuch);
+		scrollBot();
 	};
 	sendMessageClick();
 	//Message received
 	socket.on("received message", function(username, message){
-		$("#chat").append("<div class='msg'>" + username + ": " + message + "</div>");
+		$("#chat").append("<div class='alert alert-info alive'>" + username + ": " + message + "</div>");
 		//$chat.scrollTop = $chat.scrollHeight;
-		var howMuch = document.getElementById("chat").scrollHeight;
-		chat.scrollTop(howMuch);
+		scrollBot();
 	});
 
 
@@ -73,10 +76,9 @@ var $input;
 
 		socket.on("received dead message", function(username, message){
 			console.log("WORKING DEAD MESSAGE");
-			$("#chat").append("<div class='deadmsg'>" + username + ": " + message +"</div>");
-			var howMuch = document.getElementById("chat").scrollHeight;
+			$("#chat").append("<div class='alert alert-info dead'>" + username + ": " + message +"</div>");
+			scrollBot();
 			//var howMuch = $("#chat").prop('scrollHeight');
-			chat.scrollTop(howMuch);
 		});
 	};
 
@@ -267,7 +269,8 @@ var listOfPlayers = [];
 		listOfPlayers.push(player);
 		$("#alive").append("<div class='player' id=\"" + player + "\">" + '<span class="playerSpan">'+ player + '</span>' +"</div>");
 		$("#"+player).prepend('<span id="' + player + 'icon"> <img src="images/unknown/unk.png" height="32" width="32" class="unknown"> </span>');
-		$("#chat").append("<div class='servermsg'> Player " + player + " has joined the game </div>");
+		$("#chat").append("<div class='alert alert-info'> Player " + player + " has joined the game </div>");
+		scrollBot();
 	});
 
 	/*
@@ -291,7 +294,8 @@ var listOfPlayers = [];
 		var id = listOfPlayers.indexOf(name);
 		listOfPlayers.splice(id, 1);
 		$("#" + name).remove();
-		$("#chat").append("<div class='servermsg'>Player " + name + " has left the room</div>");
+		$("#chat").append("<div class='alert alert-warning'>Player " + name + " has left the room</div>");
+		scrollBot();
 	});
 
 	socket.on("player killed", function(data){
@@ -302,7 +306,6 @@ var listOfPlayers = [];
 		listOfPlayers.splice(id, 1);
 		$("#" + player).remove();
 		$("#dead").append('<div class="player"> <span id="' + player + 'icon"> <img src="images/characters/' + rolename + '.png"" height="32" width="32" class="unknown"> ' + player +'</span></div>');
-		$("#chat").append("<div class='servermsg'>Player " + player + " has been tragically killed</div>");
 	});
 
 
@@ -366,15 +369,18 @@ var listOfPlayers = [];
 	});
 
 	socket.on("welcome", function(message){
-		$("#chat").append('<div class="alert alert-success msg">' + message + '</div>' );
+		$("#chat").append('<div class="alert alert-success">' + message + '</div>' );
+		scrollBot();
 	});
 
 	socket.on("game stopped", function(message){
-		$("#chat").append('<div class="msg">' + message + '</div>' );
+		$("#chat").append('<div class="alert alert-danger">' + message + '</div>' );
+		scrollBot();
 	});
 
 	socket.on("game will start", function(message){
-		$("#chat").append('<div class="msg">' + message + '</div>' );
+		$("#chat").append('<div class="alert alert-info">' + message + '</div>' );
+		scrollBot();
 	});
 
 });

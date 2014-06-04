@@ -131,19 +131,24 @@
 }
 
 
-.msg{
-	//background-color: yellow;
+.alert{
+	margin-bottom: 5px;
 }
 
-
-.deadmsg{
-	text-color: red;
-	background-color: red;
+.alert.alert-info.alive{
+	background-color: #d6e9c6;
+	padding: @padS;
+	margin-bottom: 5px;
 }
 
-.servermsg{
-	background-color: yellow;
+.alert.alert-info.dead{
+	background-color: #cdbfe3;
+	border-color: #9783b9;
+	color: black;
+	padding: @padS;
+	margin-bottom: 5px;
 }
+
 
 .alert-success{
 	margin-bottom: 5px;
