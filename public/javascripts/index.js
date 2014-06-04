@@ -22,6 +22,7 @@ var howMuch = 0;
 
 
 	var scrollBot = function(){
+		chat = $("#chat");
 		howMuch = document.getElementById("chat").scrollHeight;
 		chat.scrollTop(howMuch);
 	};
@@ -313,7 +314,11 @@ var listOfPlayers = [];
 		var username = data.username;
 		var vote = data.vote;
 		//$("div [data-username="+username+"]").next().html('<span class="voteResult">' + vote + '</span>');
-		$("div [data-username="+username+"]").next().html(vote);
+		if(vote === ' '){
+			$("div [data-username="+username+"]").next().html("No one");
+		}else{
+			$("div [data-username="+username+"]").next().html(vote);
+		}
 	});
 
 	socket.on('you are dead', function(data){
