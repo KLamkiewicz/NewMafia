@@ -116,3 +116,58 @@
 .panel-body {
   padding: 5px 5px 8px 10px;
 }
+.infoTemplate {
+  position: absolute;
+  height: 190px;
+  width: 250px;
+  border-color: #ffcccc;
+  font-size: 1em;
+  display: none;
+}
+#villagerInfo {
+  position: absolute;
+  height: 190px;
+  width: 250px;
+  border-color: #ffcccc;
+  font-size: 1em;
+  display: none;
+}
+#mafiaInfo {
+  position: absolute;
+  height: 190px;
+  width: 250px;
+  border-color: #ffcccc;
+  font-size: 1em;
+  display: none;
+}
+#copInfo {
+  position: absolute;
+  height: 190px;
+  width: 250px;
+  border-color: #ffcccc;
+  font-size: 1em;
+  display: none;
+}
+#crazycopInfo {
+  position: absolute;
+  height: 190px;
+  width: 250px;
+  border-color: #ffcccc;
+  font-size: 1em;
+  display: none;
+}
+.sideInfo {
+  background-color: red;
+}
+.villager:hover #villagerInfo {
+  display: block;
+}
+.cop:hover #copInfo {
+  display: block;
+}
+.crazycop:hover #crazycopInfo {
+  display: block;
+}
+.mafia:hover #mafiaInfo {
+  display: block;
+}

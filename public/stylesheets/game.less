@@ -1,6 +1,7 @@
 @padL: 10px 10px 10px 10px;
 @padS: 5px 5px 5px 5px;
 @fontSize: 2em;
+@infoSize: 1.5em;
 
 #linkGlowna{
 	float:left;
@@ -156,4 +157,51 @@
 
 .panel-body{
 	padding: 5px 5px 8px 10px;
+}
+
+
+.infoTemplate{
+	position: absolute;
+	height: 190px;
+	width: 250px;
+	border-color: lighten(red, 40%);
+	font-size: @fontSize/2;
+	display: none;
+}
+
+#villagerInfo{
+	.infoTemplate;
+}
+
+#mafiaInfo{
+	.infoTemplate;
+}
+
+#copInfo{
+	.infoTemplate;
+}
+
+#crazycopInfo{
+	.infoTemplate;
+}
+
+.sideInfo{
+	background-color: red;
+}
+
+
+.villager:hover #villagerInfo{
+	display: block;
+}
+
+.cop:hover #copInfo{
+	display: block;
+}
+
+.crazycop:hover #crazycopInfo{
+	display: block;
+}
+
+.mafia:hover #mafiaInfo{
+	display: block;
 }
