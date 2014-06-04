@@ -1,5 +1,6 @@
 $(function(){
 var socket = io.connect('http://' + location.host);
+var theplayername = "";
 var dead = false;
 var gameover = false;
 var report = "";
@@ -10,7 +11,11 @@ var gameWinner = "";
 	socket.on("connect", function(){
 		console.log("You have been connected");
 
-		socket.emit("add user", "admin");
+		socket.emit("add user", "");
+	});
+
+	socket.on('get name', function(myName){
+		theplayername = myName;
 	});
 
 
@@ -62,6 +67,7 @@ var listOfPlayers = [];
 		var side = startData.side;
 		var killList = startData.list;
 		var voteList = startData.voteList;
+		var name = startData.role;
 
 		$.ajax({
 			url: '/' + side,
@@ -74,6 +80,9 @@ var listOfPlayers = [];
 
 			}
 		});
+		console.log("THIS IS THE NAME " + theplayername);
+		console.log($("#" + theplayername + "icon"));
+		$("#" + theplayername + "icon").html('<img src="images/characters/' + name +'.png" height="48" width="48" class="mafia">');
 	});
 
 	socket.on('report', function(report){
@@ -223,7 +232,7 @@ var listOfPlayers = [];
 			listOfPlayers.push(list[name]);
 			console.log("Player from list " + list[name]);
 			$("#alive").append("<div class='player' id=\"" + list[name] + "\">"  + '<span class="playerSpan">'+ list[name] + '</span>' +"</div>");
-			$("#"+list[name]).prepend('<span> <img src="images/unknown/unk.png" height="32" width="32" class="unknown"> </span>');
+			$("#"+list[name]).prepend('<span id="' + list[name] + 'icon"> <img src="images/unknown/unk.png" height="32" width="32" class="unknown"> </span>');
 		});
 	});
 
@@ -234,7 +243,7 @@ var listOfPlayers = [];
 		console.log("JOINED " + player);
 		listOfPlayers.push(player);
 		$("#alive").append("<div class='player' id=\"" + player + "\">" + '<span class="playerSpan">'+ player + '</span>' +"</div>");
-		$("#"+player).prepend('<span> <img src="images/unknown/unk.png" height="32" width="32" class="unknown"> </span>');
+		$("#"+player).prepend('<span id="' + player + 'icon"> <img src="images/unknown/unk.png" height="32" width="32" class="unknown"> </span>');
 		$("#chat").append("<div class='servermsg'> Player " + player + " has joined the game </div>");
 	});
 
@@ -329,7 +338,6 @@ var listOfPlayers = [];
 	});
 
 	socket.on("welcome", function(message){
-		$("#chat").append('<div class="alert alert-success msg">' + message + '</div>' );
 		$("#chat").append('<div class="alert alert-success msg">' + message + '</div>' );
 	});
 

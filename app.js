@@ -209,7 +209,7 @@ io.set('authorization', passportSocketIo.authorize({
 var characters = {
     village : {
         villager: {
-            name: "simple villager",
+            name: "villager",
             about: "A simple villager",
             side: "village"
         },
@@ -219,14 +219,14 @@ var characters = {
             side: "village"
         },
         badCop: {
-            name: "bad cop",
+            name: "crazy cop",
             about: "His reports aren't any good",
             side: "village"
         }
     },
     mafia : {
         mafia: {
-            name: "mafia member",
+            name: "mafia",
             about: "Kills villagers at night",
             side: "mafia"
         }
@@ -325,6 +325,7 @@ io.sockets.on('connection', function (socket) {
             }
         });
 
+        socket.emit('get name', loginName);
  
         //Message socket
         socket.on("send message", function(message){
@@ -660,7 +661,7 @@ io.sockets.on('connection', function (socket) {
                         if(name === 'cop'){
                             s.emit('next round', {day: day, side: side, list: killList, report: goodReport, voteList: village});
                         }
-                        else if(name === 'bad cop'){
+                        else if(name === 'crazy cop'){
                             s.emit('next round', {day: day, side: side, list: killList, report: badReport, voteList: village});
                         }else{
                             s.emit('next round', {day: day, side: side, list: killList, voteList: village});
@@ -802,9 +803,14 @@ io.sockets.on('connection', function (socket) {
             var side = games[room].players[s.username].side;
             var name = games[room].players[s.username].name;
             if(side === 'mafia')
-                s.emit('start game', {side: side, list: killList, voteList: list});
-            else if(side === 'village')
-                s.emit('start game', {side: side, list: []});
+                s.emit('start game', {side: side, list: killList, voteList: list, role: name});
+            else if(side === 'village'){
+                if(name === 'crazy cop')
+                    s.emit('start game', {side: side, list: [], role: "cop"});
+                else{
+                    s.emit('start game', {side: side, list: [], role: name});
+                }
+            }
         });
             // timeOuts[socket.room] = setTimeout(function(){
 
