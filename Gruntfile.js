@@ -15,7 +15,8 @@ module.exports = function(grunt) {
                 "public/stylesheets/game.css": "public/stylesheets/game.less",
 				"public/stylesheets/login.css": "public/stylesheets/login.less",
 				"public/stylesheets/register.css": "public/stylesheets/register.less",
-				"public/stylesheets/index.css": "public/stylesheets/index.less"
+				"public/stylesheets/index.css": "public/stylesheets/index.less",
+        "public/stylesheets/rules.css": "public/stylesheets/rules.less"
             }
         }
     },

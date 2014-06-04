@@ -1,0 +1,30 @@
+#header {
+  width: 100%;
+  height: 80px;
+  margin: auto;
+}
+#linkGlowna {
+  float: left;
+  padding: 10px 10px 10px 10px;
+}
+#linkZasady {
+  float: left;
+  padding: 10px 10px 10px 10px;
+}
+#linkLog {
+  float: right;
+  padding: 10px 10px 10px 10px;
+}
+#rules {
+  width: 90%;
+  margin-top: 30px;
+  margin-left: auto;
+  margin-right: auto;
+}
+#rules h1 {
+  text-align: center;
+}
+#rules p {
+  font-size: 1.1em;
+  text-indent: 10px;
+}

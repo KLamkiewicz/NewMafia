@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="jquery/dist/jquery.min.js"></script>
+	<link rel='stylesheet' href='/stylesheets/rules.css' />
+	<link rel='stylesheet' href='bootstrap.css'/>
+</head>
+<body>
+
+<% include header.ejs %> 
+
+	<div id="rules" class="jumbotron">
+		<h1> Mafia rules </h1>
+
+		<div class="panel panel-default" id="daynightcycle">
+		  <div class="panel-heading"><h2>Day and night cycle</h2></div>
+		  <div class="panel-body">
+		   	Game is split into two parts. 
+		   	<p>First the night, this is the time when mafia members kill innocent villagers. The death of the unlucky villager is decided through voting. During the night villagers are asleep therefore they can't chat. Second the day mafia members join the villagers in search
+		   		of the vicious killers. They either find them or point the fingers at the wrong direction and kill another one of their own. </p>
+		  </div>
+		</div>
+
+
+		<div class="panel panel-default" id="votingrules">
+		  <div class="panel-heading"><h2>Voting</h2></div>
+		  <div class="panel-body">
+			<p> Voting is simple, each player if he is alive can cast a vote. His vote is visible to everyone, so he must have some kind of proof before pointing fingers unless he wants to be killed himself. If all of the players casted their votes or the time is up the counting begins. Only majority of the votes may kill the player. </p>
+		  </div>
+		</div>
+
+
+		<div class="panel panel-default" id="gamendinfo">
+		  <div class="panel-heading"><h2>Game ending</h2></div>
+		  <div class="panel-body">
+			<p> Game can only end in two ways, either all of mafia dies and villagers win or mafia members outnumber the village members.</p>
+		  </div>
+		</div>
+
+		<div class="panel panel-default" id="characterrules">
+		  <div class="panel-heading"><h2>Characters</h2></div>
+		  <div class="panel-body">
+			<p>There are several kind of characters, some of them do nothing while the other are more useful. </p>
+		  </div>
+		</div>
+
+		<div class="panel panel-default" id="gamejoining">
+		  <div class="panel-heading"><h2>Joining game</h2></div>
+		  <div class="panel-body">
+			<p> Room joining is fully automated. If there are no rooms or all are full, you create your own room. You can't join a room in which you are already in, so again a new room is created. You may play at multiple rooms at once, but better be focused or you will die.</p>
+		  </div>
+		</div>
+
+		<div class="panel panel-default" id="chatinfo">
+		  <div class="panel-heading"><h2>Chat</h2></div>
+		  <div class="panel-body">
+			<p> There are three kind of chats. First one is the village chat, everyone that is alive may talk in this chat and everyone that is dead may read what is written in this chat. Second one is the mafia chat, only the mafia members may chat there, but again dead people can see it. Third one is the chat of the dead, dead players may chat amongst each other and see what is happening.</p>
+		  </div>
+		</div>
+
+
+
+	</div>
+
+</body>
+</html>
