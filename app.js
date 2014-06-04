@@ -800,6 +800,7 @@ io.sockets.on('connection', function (socket) {
 
         io.sockets.clients(room.toString()).forEach(function(s, i) {
             var side = games[room].players[s.username].side;
+            var name = games[room].players[s.username].name;
             if(side === 'mafia')
                 s.emit('start game', {side: side, list: killList, voteList: list});
             else if(side === 'village')

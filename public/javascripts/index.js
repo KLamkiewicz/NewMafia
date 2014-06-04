@@ -222,7 +222,8 @@ var listOfPlayers = [];
 		$.each(list, function(name){
 			listOfPlayers.push(list[name]);
 			console.log("Player from list " + list[name]);
-			$("#alive").append("<div class='player' id=\"" + list[name] + "\">" + '<span class="playerSpan">'+ list[name] + '</span>' +"</div>");
+			$("#alive").append("<div class='player' id=\"" + list[name] + "\">"  + '<span class="playerSpan">'+ list[name] + '</span>' +"</div>");
+			$("#"+list[name]).prepend('<span> <img src="images/unknown/unk.png" height="32" width="32" class="unknown"> </span>');
 		});
 	});
 
@@ -233,6 +234,7 @@ var listOfPlayers = [];
 		console.log("JOINED " + player);
 		listOfPlayers.push(player);
 		$("#alive").append("<div class='player' id=\"" + player + "\">" + '<span class="playerSpan">'+ player + '</span>' +"</div>");
+		$("#"+player).prepend('<span> <img src="images/unknown/unk.png" height="32" width="32" class="unknown"> </span>');
 		$("#chat").append("<div class='servermsg'> Player " + player + " has joined the game </div>");
 	});
 

@@ -23,11 +23,16 @@
   margin-bottom: 10px;
 }
 #game #viewPanel #characters {
+  height: 80px;
   float: left;
+}
+#game #viewPanel #characters .character {
+  float: left;
+  padding: 5px 5px 5px 5px;
 }
 #game #viewPanel #time {
   float: right;
-  font-size: 3em;
+  font-size: 2em;
 }
 #game #players {
   float: left;
@@ -39,6 +44,9 @@
 }
 #game #players #dead {
   margin-top: 10px;
+}
+#game #players .player {
+  height: 40px;
 }
 #game #play {
   width: 100%;
