@@ -16,12 +16,16 @@
 
   <div id="loginForm">
     <form action="/login" method="post">
-    <div id="loginNameText">Login</div>
-    <div><label>Username:</label>
-    <input type="text" name="username" class="form-control"/><br/></div>
-    <div><label>Password:</label>
-    <input type="password" name="password" class="form-control"/></div>
-    <div><input type="submit" value="Login" class="btn btn-default" id="loginButton"/></div></form>
+      <div id="loginNameText">Login</div>
+      <div><label>Username:</label>
+        <input type="text" name="username" class="form-control" pattern=".{1,10}" required title="Username must be 1-10 characters long"/><br/></div>
+      <div><label>Password:</label>
+        <input type="password" name="password" class="form-control" pattern=".{1,10}" required title="Password must be 1-10 characters long"/>
+      </div>
+      <div>
+        <input type="submit" value="Login" class="btn btn-default" id="loginButton"/>
+      </div>
+  </form>
   </div>
   
 

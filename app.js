@@ -234,8 +234,7 @@ var characters = {
 };
 
 //Predefined game set from the characters object
-var set = [characters.village.villager, characters.mafia.mafia, characters.village.cop];
-//, characters.mafia.mafia, characters.village.villager, characters.village.villager, characters.village.badCop];
+var set = [characters.village.villager, characters.mafia.mafia, characters.village.cop, characters.mafia.mafia, characters.village.villager, characters.village.villager, characters.village.badCop];
 
 var PLAYERS_LENGTH = set.length;
 
@@ -281,8 +280,10 @@ io.sockets.on('connection', function (socket) {
 
                 //Notify players in the room a player has disconnected
                 socket.leave((socket.room).toString());
-                if(games[socket.room].started)
-                    io.sockets.in((socket.room).toString()).emit("player disconnected", {name: socket.username, alive: socket.alive});
+                if(games[socket.room].started){
+                    var rolename = games[socket.room].players[socket.username].name;
+                    io.sockets.in((socket.room).toString()).emit("player disconnected", {name: socket.username, alive: socket.alive, role: rolename});
+                }
                 else{
                     io.sockets.in((socket.room).toString()).emit("player left", {name: socket.username});
                 }
@@ -566,11 +567,12 @@ io.sockets.on('connection', function (socket) {
                         console.log("Majority");
                         io.sockets.clients((socket.room).toString()).forEach(function(s, i) {
                             if(s.username === n ){
+                                var rolename = games[room].players[s.username].name;
                                 games[s.room].players[s.username].alive = false;
                                 s.alive = false;
                                 s.emit("you are dead", "You have been killed");
+                                io.sockets.in((socket.room).toString()).emit('player killed', {name: n, rolename: rolename});
                             }
-                            s.emit('player killed', n);
                         });
                     }else{
                         console.log("Minority");
@@ -701,11 +703,11 @@ io.sockets.on('connection', function (socket) {
 
         }
         else if(mafiaCount === 0){
-            io.sockets.in(room).emit("winner", "village");
+            io.sockets.in(room).emit("winner", "Village");
             games[socket.room].over = true;
         }
         else if(mafiaCount >= villageCount){
-            io.sockets.in(room).emit("winner", "mafia");
+            io.sockets.in(room).emit("winner", "Mafia");
             games[socket.room].over = true;
         }
     };

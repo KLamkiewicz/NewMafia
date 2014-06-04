@@ -60,10 +60,18 @@
 #game #play #chatWrap #chat {
   height: 70%;
   overflow-y: auto;
+  overflow-x: none;
   padding: 15px 15px 15px 15px;
+}
+#game #play #chatWrap #msgmsg {
+  float: left;
+  margin: 10px 10px 10px 10px;
+  padding: 5px 5px 5px 5px;
 }
 #game #play #chatWrap #message {
   margin-top: 15px;
+  height: 50px;
+  float: left;
 }
 #game #play #chatWrap #message #chatMessage {
   width: 150px;

@@ -16,9 +16,10 @@
   <div id="registerForm">
     <div id="registerNameText">Register</div>
     <form action="/register" method="post">
-    <div><label>Username:</label> <input type="text" name="username" class="form-control"/><br/></div>
+    <div><label>Username:</label> 
+      <input type="text" name="username" class="form-control" pattern=".{1,10}" required title="Your username must be 1-10 characters long"/><br/></div>
     <div><label>Password:</label>
-    <input type="password" name="password" class="form-control"/></div>
+    <input type="password" name="password" class="form-control" pattern=".{1,10}" required title="Your password must be 1-10 characters long"/></div>
     <div><input type="submit" value="Register" class="btn btn-default" id="registerButton"/></div></form>
   </div>
 

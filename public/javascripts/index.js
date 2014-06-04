@@ -6,6 +6,7 @@ var gameover = false;
 var report = "";
 var chat = $("#chat");
 var gameWinner = "";
+var $input;
 
 	//Can remove add user' and add him from auth on connect
 	socket.on("connect", function(){
@@ -21,11 +22,26 @@ var gameWinner = "";
 
 	//Message sent
 	var sendMessageClick = function(){
+
+
 		$("#sendMessage").click(function(e){
 			e.preventDefault();
-			socket.emit("send message", $("#chatMessage").val());
-			$("#chatMessage").val("");
+			$input = $("#chatMessage").val();
+
+			if($input === ''){
+				$("#msgmsg").html("Message cannot be empty");
+			}else if($input.length > 50){
+				$("#msgmsg").html("Message is too long");
+			}
+			else{
+				socket.emit("send message", $("#chatMessage").val());
+				$("#chatMessage").val("");
+				$("#msgmsg").html("");
+			}
 		});
+
+		var howMuch = document.getElementById("chat").scrollHeight;
+		chat.scrollTop(howMuch);
 	};
 	sendMessageClick();
 	//Message received
@@ -33,17 +49,26 @@ var gameWinner = "";
 		$("#chat").append("<div class='msg'>" + username + ": " + message + "</div>");
 		//$chat.scrollTop = $chat.scrollHeight;
 		var howMuch = document.getElementById("chat").scrollHeight;
-		//var howMuch = $("#chat").prop('scrollHeight');
 		chat.scrollTop(howMuch);
 	});
 
 
 	var enableDeadSocket = function(){
+
 		$("#sendMessage").click(function(e){
 			e.preventDefault();
-			socket.emit("dead message", $("#chatMessage").val());
-			$("#chatMessage").val("");
-			console.log("SENT MESSAGE");
+			$input = $("#chatMessage").val();
+
+			if($input === ''){
+				$("#msgmsg").html("Message cannot be empty");
+			}else if($input.length > 50){
+				$("#msgmsg").html("Message is too long");
+			}
+			else{
+				socket.emit("dead message", $("#chatMessage").val());
+				$("#chatMessage").val("");
+				$("#msgmsg").html("");
+			}
 		});
 
 		socket.on("received dead message", function(username, message){
@@ -80,9 +105,7 @@ var listOfPlayers = [];
 
 			}
 		});
-		console.log("THIS IS THE NAME " + theplayername);
-		console.log($("#" + theplayername + "icon"));
-		$("#" + theplayername + "icon").html('<img src="images/characters/' + name +'.png" height="48" width="48" class="mafia">');
+		$("#" + theplayername + "icon").html('<img src="images/characters/' + name +'.png" height="32" width="32" class="mafia">');
 	});
 
 	socket.on('report', function(report){
@@ -253,11 +276,13 @@ var listOfPlayers = [];
 	socket.on("player disconnected", function(player){
 		var name = player.name;
 		var alive = player.alive;
+		var rolename = player.role;
 		var id = listOfPlayers.indexOf(name);
 		if(alive){
 			listOfPlayers.splice(id, 1);
 			$("#" + name).remove();
-			$("#dead").append(name);
+			//$("#dead").append(name);
+			$("#dead").append('<span id="' + name + 'icon"> <img src="images/characters/' + rolename + '.png"" height="32" width="32" class="unknown"> ' + name +'</span>');
 		}
 	});
 
@@ -269,11 +294,14 @@ var listOfPlayers = [];
 		$("#chat").append("<div class='servermsg'>Player " + name + " has left the room</div>");
 	});
 
-	socket.on("player killed", function(player){
+	socket.on("player killed", function(data){
+		var player = data.name;
+		var rolename = data.rolename;
+
 		var id = listOfPlayers.indexOf(player);
 		listOfPlayers.splice(id, 1);
 		$("#" + player).remove();
-		$("#dead").append(player);
+		$("#dead").append('<div class="player"> <span id="' + player + 'icon"> <img src="images/characters/' + rolename + '.png"" height="32" width="32" class="unknown"> ' + player +'</span></div>');
 		$("#chat").append("<div class='servermsg'>Player " + player + " has been tragically killed</div>");
 	});
 
