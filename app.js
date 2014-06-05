@@ -240,7 +240,7 @@ var PLAYERS_LENGTH = set.length;
 var games = {};
 var roomID = 0;
 var timeOuts = [];
-var daySeconds = 240;
+var daySeconds = 40;
 var nightSeconds = 120;
 
 
@@ -546,7 +546,7 @@ io.sockets.on('connection', function (socket) {
                         console.log("Majority");
                         io.sockets.clients((socket.room).toString()).forEach(function(s, i) {
                             if(s.username === n ){
-                                var rolename = games[room].players[s.username].name;
+                                var rolename = games[socket.room].players[s.username].name;
                                 games[s.room].players[s.username].alive = false;
                                 s.alive = false;
                                 s.emit("you are dead", "You have been killed");
