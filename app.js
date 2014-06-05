@@ -134,8 +134,6 @@ app.get('/register',isLoggedIn, function(req, res){
 });
 
 app.get('/', function(req, res){
-    console.log(req.session.game);
-    //res.send(html);
     var logged = req.user?true:false;
     res.render('index', {isLogged: logged});
 
@@ -196,7 +194,7 @@ io.set('log level', 2);
 io.set('authorization', passportSocketIo.authorize({
     passport: passport,
     cookieParser: express.cookieParser,
-    key: sessionKey, // nazwa ciasteczka, w którym express/connect przechowuje identyfikator sesji
+    key: sessionKey, 
     secret: sessionSecret,
     store: sessionStore,
     success: onAuthorizeSuccess,
@@ -242,8 +240,8 @@ var PLAYERS_LENGTH = set.length;
 var games = {};
 var roomID = 0;
 var timeOuts = [];
-var daySeconds = 30000;
-var nightSeconds = 25000;
+var daySeconds = 240;
+var nightSeconds = 120;
 
 
 io.sockets.on('connection', function (socket) {
@@ -345,11 +343,6 @@ io.sockets.on('connection', function (socket) {
         });
 
 
-        //Get list of players upon joining the room, wait for the game screen to be prepared
-        socket.on("ready for list", function(){
-            emitListOfPlayers((socket.room).toString());
-        });
-
         /*
             In here the server decides which room the player will join
             First we check all available rooms, if there is no room that the player can join,
@@ -435,18 +428,18 @@ io.sockets.on('connection', function (socket) {
 
             var room = socket.room;
             games[room].players[loginName].vote = vote;
-            for(var p in games[room].players){
-                day = games[room].day;
-                if(!games[room].day){
-                    if(games[room].players[p].side === 'mafia' && games[room].players[p].alive){
-                        count++;
+                for(var p in games[room].players){
+                    day = games[room].day;
+                    if(!games[room].day){
+                        if(games[room].players[p].side === 'mafia' && games[room].players[p].alive){
+                            count++;
+                        }
+                    }else{
+                       if(games[room].players[p].alive){
+                            count++;
+                       }     
                     }
-                }else{
-                   if(games[room].players[p].alive){
-                        count++;
-                   }     
                 }
-            }
 
             if(day){                   
                 io.sockets.in((socket.room).toString()).emit('kill list vote', {username: socket.username, vote: vote, day: day});
@@ -467,24 +460,6 @@ io.sockets.on('connection', function (socket) {
 
 //Functions
 
-    var count = function(room){
-        var count = 0;
-
-            for(var p in games[room].players){
-                day = games[room].day;
-                if(!games[room].day){
-                    if(games[room].players[p].side === 'mafia' && games[room].players[p].alive){
-                        count++;
-                    }
-                }else{
-                   if(games[room].players[p].alive){
-                        count++;
-                   }     
-                }
-            }
-        return count;
-    };
-    
 
     var theKilling = function(count, isTimeout){
         var votesCasted = 0;
@@ -506,6 +481,12 @@ io.sockets.on('connection', function (socket) {
             }
         }
 
+        /*
+            Vote array consists of all player votes casted so far e.g. ["1", "1", "0", "1"]
+            We iterate over all those votes and check if the vote is already present in the
+            votes object if he is then we increase the number of times he is present, else we
+            create new field
+        */
         voteArray.forEach(function(el){
             if(el in votes){
                 votes[el]++;
@@ -518,13 +499,10 @@ io.sockets.on('connection', function (socket) {
 
         //Check if the votesCasted count equals the number of people allowed to vote
         if(votesCasted===count?true:false || isTimeout){
-            console.log("BEFORE");
-            console.log(games[socket.room].voteInterval);
+
             clearInterval(games[socket.room].voteInterval);
-            console.log("AFTER ");
             //delete is slower than setting to undefined and variable is used later
             games[socket.room].voteInterval = undefined;
-            console.log(games[socket.room].voteInterval);
 
             /*
                 Check the votes
@@ -558,6 +536,7 @@ io.sockets.on('connection', function (socket) {
             */                      
             if(Object.keys(topVotes).length === 1){
                 //This will only make one loop, because there is only one field in the object
+                //but we iterate anywas because we don't know the name of the "top voted" player
                 for(var n in topVotes){
                     /*jshint loopfunc: true */
                     //Kill this one
@@ -592,6 +571,24 @@ io.sockets.on('connection', function (socket) {
         }
     };
 
+    var count = function(room){
+        var count = 0;
+
+            for(var p in games[room].players){
+                day = games[room].day;
+                if(!games[room].day){
+                    if(games[room].players[p].side === 'mafia' && games[room].players[p].alive){
+                        count++;
+                    }
+                }else{
+                   if(games[room].players[p].alive){
+                        count++;
+                   }     
+                }
+            }
+        return count;
+    };
+    
 
     var nextRound = function(room){
 
@@ -698,8 +695,6 @@ io.sockets.on('connection', function (socket) {
             }
             io.sockets.in((socket.room).toString()).emit('vote time', games[socket.room].time);
         }, 1000);
-        console.log("NEW INTERVAL ");
-        console.log(games[socket.room].voteInterval);
 
         }
         else if(mafiaCount === 0){
